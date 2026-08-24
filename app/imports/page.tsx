@@ -2,6 +2,8 @@ import { Masthead } from '@/components/Masthead';
 import { ImportPanel } from '@/components/ImportPanel';
 import { loadImportLog } from '@/lib/queries';
 import { isDatabaseConfigured } from '@/db/client';
+import { describeDbError } from '@/lib/db-error';
+import { DbError } from '@/components/DbError';
 
 export const dynamic = 'force-dynamic';
 
@@ -30,7 +32,19 @@ export default async function ImportsPage() {
     );
   }
 
-  const log = await loadImportLog();
+  let log;
+  try {
+    log = await loadImportLog();
+  } catch (error) {
+    return (
+      <main className="page">
+        <div className="page-inner">
+          <Masthead view="imports" />
+          <DbError info={describeDbError(error)} />
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="page">
