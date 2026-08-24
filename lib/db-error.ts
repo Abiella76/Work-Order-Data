@@ -50,6 +50,22 @@ export function describeDbError(error: unknown): DbErrorInfo {
     };
   }
 
+  // The driver rejects the value before any network call — so the variable is
+  // not a connection string at all. Usually the site's own URL, or a value that
+  // kept its `DATABASE_URL=` prefix or a wrapping `psql '...'`.
+  if (/invalid url/i.test(raw)) {
+    return {
+      title: 'DATABASE_URL is not a valid connection string',
+      steps: [
+        'The value must begin with postgresql:// — a site address such as https://…vercel.app is not a database.',
+        'Copy it from your provider with its copy button, not by retyping: the password is masked on screen.',
+        'Paste only the connection string itself — no DATABASE_URL= prefix, no surrounding quotes, and no psql command around it.',
+        'Save, then redeploy so the new value is read.',
+      ],
+      detail,
+    };
+  }
+
   if (code === 'ENOTFOUND' || code === 'EAI_AGAIN' || /getaddrinfo/i.test(raw)) {
     return {
       title: 'The database host could not be found',
