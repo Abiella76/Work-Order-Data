@@ -57,18 +57,37 @@ repeatedly — already-applied migrations are skipped.
 
    Vercel will ask which repositories it may access. Granting it just
    `Work-Order-Data` is enough.
-2. On the dashboard, **Add New → Project**, and import
-   `Abiella76/Work-Order-Data`.
-3. Under **Environment Variables**, add:
+2. On the dashboard, **Add New → Project**. A list of your GitHub repositories
+   appears, each with an **Import** button.
 
-   | Name | Value |
+   **If `Work-Order-Data` is not in the list**, Vercel has not been granted
+   access to it — the list shows only what you approved at signup, and says
+   nothing about what is missing. Fix it from GitHub:
+
+   1. Open **https://github.com/settings/installations**
+   2. **Configure** next to **Vercel**
+   3. Under *Repository access*, choose **All repositories**, or
+      **Only select repositories** and add `Work-Order-Data`
+   4. **Save**, then reload the Vercel page
+
+   Vercel's own import screen also links to this, usually as *"Adjust GitHub App
+   Permissions"* or *"Missing Git repository?"* beneath the list.
+
+3. Click **Import** on `Work-Order-Data`. Vercel shows a **Configure Project**
+   screen before it builds anything.
+4. Expand **Environment Variables** on that screen and add:
+
+   | Key | Value |
    | --- | --- |
    | `DATABASE_URL` | your pooled Neon connection string |
 
-   Add it for Production, Preview and Development.
-4. Leave every other setting alone — Vercel detects Next.js and configures the
+   Click **Add**. Leave it applied to Production, Preview and Development.
+
+   Missing this step is not fatal — see *"No database configured"* under
+   Troubleshooting for how to add it afterwards.
+5. Leave every other setting alone — Vercel detects Next.js and configures the
    build itself.
-5. **Deploy.**
+6. **Deploy.**
 
 The first build takes two or three minutes. When it finishes you get a URL like
 `work-order-data.vercel.app`. Opening it shows the dashboard's empty state,
@@ -128,9 +147,18 @@ the database. Override with `DB_POOL_MAX` if you ever need to.
 
 ## Troubleshooting
 
+**The repository does not appear in Vercel's import list** — Vercel has not been
+granted access to it. See step 3.2 above.
+
 **"No database configured"** — `DATABASE_URL` is missing from the Vercel
-environment, or it was added after the last build. Add it, then redeploy from
-the Deployments tab.
+environment, or it was added after the last build. Environment variables are
+read at build time, so adding one does not affect a deployment that already
+exists:
+
+1. **Project → Settings → Environment Variables**
+2. Add `DATABASE_URL` with the pooled Neon string, applied to all three
+   environments
+3. **Deployments → ⋯ on the latest one → Redeploy**
 
 **`ECONNREFUSED` or a connection timeout** — usually the direct Neon string
 rather than the pooled one. Check for `-pooler` in the hostname.
