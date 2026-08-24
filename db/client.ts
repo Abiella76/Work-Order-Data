@@ -27,7 +27,21 @@ export function getDb() {
     );
   }
 
-  const sql = globalThis.__woSql ?? postgres(url, { max: 5 });
+  // On a serverless host each concurrent invocation gets its own process, so a
+  // generous per-process pool multiplies into hundreds of connections and
+  // exhausts the database. One connection per invocation is the right shape
+  // there; a long-lived local server can afford a real pool.
+  const isServerless = Boolean(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME);
+  const max = Number(process.env.DB_POOL_MAX) || (isServerless ? 1 : 5);
+
+  const sql =
+    globalThis.__woSql ??
+    postgres(url, {
+      max,
+      // Don't hold a connection open across invocations that will never reuse it.
+      idle_timeout: isServerless ? 20 : 0,
+      connect_timeout: 10,
+    });
   if (process.env.NODE_ENV !== 'production') globalThis.__woSql = sql;
 
   cached = drizzle(sql, { schema });

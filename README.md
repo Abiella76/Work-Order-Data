@@ -41,6 +41,9 @@ npm run db:migrate            # apply schema migrations
 npm run dev                   # http://localhost:3000
 ```
 
+To put it online instead, see **[docs/deploy.md](docs/deploy.md)** — a
+step-by-step Neon + Vercel walkthrough, about fifteen minutes.
+
 Load a directory of daily reports:
 
 ```bash
