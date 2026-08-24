@@ -1,0 +1,22 @@
+# Local Postgres for development. Production uses a managed instance
+# (Neon or Supabase) — nothing here is intended to hold real data.
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: work-orders-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: work_orders
+    ports:
+      - '5432:5432'
+    volumes:
+      - work-orders-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d work_orders']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  work-orders-pgdata:

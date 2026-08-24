@@ -1,0 +1,25 @@
+node_modules/
+.next/
+out/
+build/
+dist/
+
+.env
+.env.local
+.env*.local
+
+*.tsbuildinfo
+next-env.d.ts
+
+.DS_Store
+*.log
+npm-debug.log*
+
+# Customer data never enters version control.
+#
+# The daily reports carry customer names, vendor names, invoice numbers and
+# dollar values. Drop them here to run the real-report assertions locally
+# (see README, "Validating against the real reports"); they stay out of git.
+/tests/fixtures-real/*.csv
+/reports/
+/tests/fixtures-real/expected.json

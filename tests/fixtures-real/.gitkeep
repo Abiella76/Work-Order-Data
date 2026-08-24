@@ -1,0 +1,5 @@
+Put the four real daily reports and expected.json here to run the handoff's
+validation table locally. Everything in this directory except this file is
+gitignored — the CSVs carry customer and vendor names, and expected.json is the
+business's own revenue and margin. See README.md, "Validating against the real
+reports".

@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/nocturne-1907a6cb-4dc1-4ef2-882d-3c49e76e1075/styles.css">
+<script src="_ds/nocturne-1907a6cb-4dc1-4ef2-882d-3c49e76e1075/_ds_bundle.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
+<style>
+  body { margin: 0; background: var(--color-bg); color: var(--color-text); font-family: var(--font-body); }
+  a { color: var(--color-accent-300); text-decoration: none; }
+  a:hover { color: var(--color-accent-200); }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-thumb { background: var(--color-neutral-800); border-radius: 8px; }
+</style>
+</helmet>
+<div style="min-height: 100vh; background: radial-gradient(120% 80% at 12% -10%, #1d2033 0%, var(--color-bg) 55%); padding: 22px 28px 56px; font-family: var(--font-body); font-size: 13px; line-height: 1.45; color: var(--color-text)">
+
+  <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 24px; padding-bottom: 14px; border-bottom: 1px solid var(--color-divider)">
+    <div style="display: flex; align-items: baseline; gap: 14px">
+      <div style="font-family: var(--font-heading); font-size: 17px; font-weight: 500; letter-spacing: -0.01em">Work Order Operations</div>
+      <div style="width: 20px; height: 1px; background: var(--color-accent)"></div>
+      <div style="font-size: 12px; color: var(--color-neutral-400)">Noontide Service Corporation USA Inc.</div>
+    </div>
+    <div style="display: flex; gap: 6px">
+      <button type="button" onClick="{{ goDash }}" class="btn {{ dashCls }}" style="font-size: 12px; padding: 5px 12px">Dashboard</button>
+      <button type="button" onClick="{{ goImport }}" class="btn {{ importCls }}" style="font-size: 12px; padding: 5px 12px">Import log</button>
+    </div>
+  </div>
+
+  <sc-if value="{{ isDash }}" hint-placeholder-val="{{ true }}">
+  <div>
+    <div style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 18px; padding: 16px 0 18px">
+      <div style="display: flex; flex-direction: column; gap: 5px">
+        <div style="font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-neutral-500)">Period</div>
+        <div style="display: flex; gap: 4px">
+          <sc-for list="{{ rangeOpts }}" as="opt" hint-placeholder-count="6">
+            <button type="button" onClick="{{ opt.onClick }}" class="btn {{ opt.cls }}" style="font-size: 12px; padding: 5px 11px">{{ opt.label }}</button>
+          </sc-for>
+        </div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 5px">
+        <div style="font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-neutral-500)">Customer</div>
+        <select class="input" onChange="{{ onCustomer }}" value="{{ customer }}" style="font-size: 12px; padding: 5px 9px; min-width: 210px">
+          <sc-for list="{{ customerOpts }}" as="c" hint-placeholder-count="4">
+            <option value="{{ c.value }}">{{ c.label }}</option>
+          </sc-for>
+        </select>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 5px">
+        <div style="font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-neutral-500)">Type</div>
+        <select class="input" onChange="{{ onType }}" value="{{ type }}" style="font-size: 12px; padding: 5px 9px; min-width: 110px">
+          <sc-for list="{{ typeOpts }}" as="t" hint-placeholder-count="3">
+            <option value="{{ t.value }}">{{ t.label }}</option>
+          </sc-for>
+        </select>
+      </div>
+      <div style="margin-left: auto; text-align: right; font-size: 11px; color: var(--color-neutral-400); max-width: 320px">
+        {{ periodNote }}
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px">
+      <sc-for list="{{ kpis }}" as="k" hint-placeholder-count="10">
+        <div style="background: linear-gradient(180deg, var(--color-surface) 0%, #1e2030 100%); border: 1px solid var(--color-neutral-800); border-radius: var(--radius-md, 8px); padding: 11px 13px 12px; display: flex; flex-direction: column; gap: 6px; min-height: 84px">
+          <div style="font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-neutral-500)">{{ k.label }}</div>
+          <div style="font-family: var(--font-heading); font-size: 25px; font-weight: 500; letter-spacing: -0.02em; line-height: 1; color: {{ k.color }}">{{ k.value }}</div>
+          <div style="font-size: 11px; color: var(--color-neutral-400); margin-top: auto">{{ k.sub }}</div>
+        </div>
+      </sc-for>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1.55fr 1fr; gap: 12px; margin-top: 12px">
+
+      <div style="background: var(--color-surface); border: 1px solid var(--color-neutral-800); border-radius: var(--radius-md, 8px); padding: 14px 16px 12px">
+        <div style="display: flex; justify-content: space-between; align-items: baseline">
+          <div style="font-family: var(--font-heading); font-size: 13px; font-weight: 500">Received vs invoiced</div>
+          <div style="display: flex; gap: 14px; font-size: 11px; color: var(--color-neutral-400)">
+            <span style="display: inline-flex; align-items: center; gap: 6px"><span style="width: 9px; height: 9px; border-radius: 2px; background: var(--color-accent-500)"></span>Received</span>
+            <span style="display: inline-flex; align-items: center; gap: 6px"><span style="width: 9px; height: 9px; border-radius: 2px; background: var(--color-neutral-600)"></span>Invoiced</span>
+          </div>
+        </div>
+        <div style="display: flex; align-items: flex-end; gap: 4px; height: 158px; margin-top: 16px; border-bottom: 1px solid var(--color-divider); padding-bottom: 0">
+          <sc-for list="{{ flowDays }}" as="d" hint-placeholder-count="4">
+            <div style="flex: 1; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 7px; height: 100%; background: {{ d.colBg }}; border-radius: 6px 6px 0 0; padding: 0 6px">
+              <div style="display: flex; align-items: flex-end; gap: 5px; height: 100%; width: 100%; justify-content: center">
+                <div style="width: 26px; height: {{ d.recH }}px; background: linear-gradient(180deg, var(--color-accent-500), var(--color-accent-700)); border-radius: 3px 3px 0 0; position: relative; display: flex; justify-content: center">
+                  <span style="position: absolute; top: -16px; font-size: 11px; color: var(--color-accent-300)">{{ d.recLabel }}</span>
+                </div>
+                <div style="width: 26px; height: {{ d.invH }}px; background: linear-gradient(180deg, var(--color-neutral-600), var(--color-neutral-800)); border-radius: 3px 3px 0 0; position: relative; display: flex; justify-content: center">
+                  <span style="position: absolute; top: -16px; font-size: 11px; color: var(--color-neutral-400)">{{ d.invLabel }}</span>
+                </div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="display: flex; gap: 4px; margin-top: 8px">
+          <sc-for list="{{ flowDays }}" as="d" hint-placeholder-count="4">
+            <div style="flex: 1; text-align: center; display: flex; flex-direction: column; gap: 2px">
+              <div style="font-size: 11px; color: {{ d.labelColor }}">{{ d.label }}</div>
+              <div style="font-size: 10px; color: var(--color-neutral-600)">{{ d.note }}</div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="background: var(--color-surface); border: 1px solid var(--color-neutral-800); border-radius: var(--radius-md, 8px); padding: 14px 16px 12px; display: flex; flex-direction: column">
+        <div style="font-family: var(--font-heading); font-size: 13px; font-weight: 500">{{ backlogTitle }}</div>
+        <div style="font-size: 11px; color: var(--color-neutral-400); margin-top: 3px">{{ backlogSub }}</div>
+        <svg viewBox="0 0 320 132" preserveAspectRatio="none" style="width: 100%; height: 148px; margin-top: 10px; overflow: visible">
+          <line x1="14" y1="{{ zeroY }}" x2="306" y2="{{ zeroY }}" stroke="var(--color-neutral-700)" stroke-width="1" stroke-dasharray="3 4"></line>
+          <polyline points="{{ backlogArea }}" fill="var(--color-accent-900)" opacity="0.75"></polyline>
+          <polyline points="{{ backlogPoints }}" fill="none" stroke="var(--color-accent)" stroke-width="2" stroke-linejoin="round"></polyline>
+          <sc-for list="{{ backlogDots }}" as="p" hint-placeholder-count="4">
+            <circle cx="{{ p.x }}" cy="{{ p.y }}" r="3.5" fill="var(--color-bg)" stroke="var(--color-accent)" stroke-width="2"></circle>
+          </sc-for>
+        </svg>
+        <div style="display: flex; margin-top: 4px">
+          <sc-for list="{{ backlogDots }}" as="p" hint-placeholder-count="4">
+            <div style="flex: 1; text-align: center; font-size: 11px; color: var(--color-neutral-400)">{{ p.label }}</div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 12px">
+
+      <div style="background: var(--color-surface); border: 1px solid var(--color-neutral-800); border-radius: var(--radius-md, 8px); padding: 14px 16px 12px">
+        <div style="font-family: var(--font-heading); font-size: 13px; font-weight: 500">Invoiced revenue &amp; gross profit</div>
+        <div style="font-size: 11px; color: var(--color-neutral-400); margin-top: 3px">Accent segment is recorded gross profit</div>
+        <div style="display: flex; align-items: flex-end; gap: 8px; height: 118px; margin-top: 14px; border-bottom: 1px solid var(--color-divider)">
+          <sc-for list="{{ revDays }}" as="d" hint-placeholder-count="4">
+            <div style="flex: 1; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; height: 100%">
+              <div style="font-size: 10px; color: var(--color-neutral-400); margin-bottom: 5px">{{ d.revLabel }}</div>
+              <div style="width: 100%; max-width: 46px; display: flex; flex-direction: column">
+                <div style="height: {{ d.profitH }}px; background: linear-gradient(180deg, var(--color-accent-500), var(--color-accent-700)); border-radius: 3px 3px 0 0"></div>
+                <div style="height: {{ d.costH }}px; background: var(--color-neutral-800); border-top: 1px solid var(--color-neutral-700)"></div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="display: flex; gap: 8px; margin-top: 7px">
+          <sc-for list="{{ revDays }}" as="d" hint-placeholder-count="4">
+            <div style="flex: 1; text-align: center; font-size: 11px; color: {{ d.labelColor }}">{{ d.label }}</div>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="background: var(--color-surface); border: 1px solid var(--color-neutral-800); border-radius: var(--radius-md, 8px); padding: 14px 16px 12px">
+        <div style="font-family: var(--font-heading); font-size: 13px; font-weight: 500">New authorized work</div>
+        <div style="font-size: 11px; color: var(--color-neutral-400); margin-top: 3px">Customer authorization on receipts</div>
+        <div style="display: flex; align-items: flex-end; gap: 8px; height: 118px; margin-top: 14px; border-bottom: 1px solid var(--color-divider)">
+          <sc-for list="{{ authDays }}" as="d" hint-placeholder-count="4">
+            <div style="flex: 1; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; height: 100%">
+              <div style="font-size: 10px; color: var(--color-neutral-400); margin-bottom: 5px">{{ d.label2 }}</div>
+              <div style="width: 100%; max-width: 46px; height: {{ d.h }}px; background: linear-gradient(180deg, var(--color-accent-2-600), var(--color-accent-2-800)); border-radius: 3px 3px 0 0"></div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="display: flex; gap: 8px; margin-top: 7px">
+          <sc-for list="{{ authDays }}" as="d" hint-placeholder-count="4">
+            <div style="flex: 1; text-align: center; font-size: 11px; color: {{ d.labelColor }}">{{ d.label }}</div>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="background: var(--color-surface); border: 1px solid var(--color-neutral-800); border-radius: var(--radius-md, 8px); padding: 14px 16px 12px">
+        <div style="font-family: var(--font-heading); font-size: 13px; font-weight: 500">Customer mix</div>
+        <div style="font-size: 11px; color: var(--color-neutral-400); margin-top: 3px">Share of invoiced revenue</div>
+        <div style="display: flex; flex-direction: column; gap: 9px; margin-top: 14px">
+          <sc-for list="{{ mix }}" as="m" hint-placeholder-count="6">
+            <div style="display: flex; flex-direction: column; gap: 4px">
+              <div style="display: flex; justify-content: space-between; gap: 10px; font-size: 11px">
+                <span style="color: var(--color-neutral-300); overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{ m.name }}</span>
+                <span style="color: var(--color-neutral-400); flex: none">{{ m.right }}</span>
+              </div>
+              <div style="height: 5px; background: var(--color-neutral-900); border-radius: 3px; overflow: hidden">
+                <div style="width: {{ m.pct }}%; height: 100%; background: var(--color-accent-500)"></div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1.9fr 1fr; gap: 12px; margin-top: 12px; align-items: start">
+      <div style="background: var(--color-surface); border: 1px solid var(--color-neutral-800); border-radius: var(--radius-md, 8px); padding: 14px 16px 8px">
+        <div style="font-family: var(--font-heading); font-size: 13px; font-weight: 500; margin-bottom: 10px">Daily executive scorecard</div>
+        <table class="table" style="width: 100%; font-size: 12px">
+          <thead>
+            <tr>
+              <th style="text-align: left">Date</th>
+              <th style="text-align: right">New</th>
+              <th style="text-align: right">Inv.</th>
+              <th style="text-align: right">Net</th>
+              <th style="text-align: right">Thru</th>
+              <th style="text-align: right">Revenue</th>
+              <th style="text-align: right">New auth.</th>
+              <th style="text-align: right">Vendor cost</th>
+              <th style="text-align: right">Gross profit</th>
+              <th style="text-align: right">GM%</th>
+            </tr>
+          </thead>
+          <tbody>
+            <sc-for list="{{ scorecard }}" as="r" hint-placeholder-count="5">
+              <tr style="color: {{ r.color }}; background: {{ r.bg }}">
+                <td style="text-align: left; white-space: nowrap">{{ r.date }}</td>
+                <td style="text-align: right">{{ r.rec }}</td>
+                <td style="text-align: right">{{ r.inv }}</td>
+                <td style="text-align: right; color: {{ r.netColor }}">{{ r.net }}</td>
+                <td style="text-align: right">{{ r.thru }}</td>
+                <td style="text-align: right">{{ r.rev }}</td>
+                <td style="text-align: right">{{ r.auth }}</td>
+                <td style="text-align: right">{{ r.cost }}</td>
+                <td style="text-align: right">{{ r.profit }}</td>
+                <td style="text-align: right">{{ r.gm }}</td>
+              </tr>
+            </sc-for>
+          </tbody>
+        </table>
+      </div>
+
+      <div style="background: linear-gradient(180deg, #1f2233 0%, var(--color-surface) 100%); border: 1px solid var(--color-neutral-800); border-radius: var(--radius-md, 8px); padding: 14px 16px 16px">
+        <div style="font-family: var(--font-heading); font-size: 13px; font-weight: 500">Executive insights</div>
+        <div style="font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-neutral-600); margin-top: 4px">Deterministic — computed from imported rows</div>
+        <div style="display: flex; flex-direction: column; gap: 11px; margin-top: 14px">
+          <sc-for list="{{ insights }}" as="i" hint-placeholder-count="5">
+            <div style="display: grid; grid-template-columns: 14px 1fr; gap: 8px; align-items: start">
+              <span style="width: 5px; height: 5px; border-radius: 50%; background: {{ i.dot }}; margin-top: 6px"></span>
+              <div style="font-size: 12px; color: var(--color-neutral-300); text-wrap: pretty">{{ i.text }}</div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ isImport }}" hint-placeholder-val="{{ false }}">
+  <div style="padding-top: 18px">
+    <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 12px; align-items: start">
+      <div style="background: var(--color-surface); border: 1px solid var(--color-neutral-800); border-radius: var(--radius-md, 8px); padding: 16px">
+        <div style="font-family: var(--font-heading); font-size: 13px; font-weight: 500">Import a daily report</div>
+        <div style="font-size: 11px; color: var(--color-neutral-400); margin-top: 4px">Manual until Gmail ingestion is live. Zero-row reports are valid.</div>
+        <div style="margin-top: 14px; border: 1px dashed var(--color-accent-700); border-radius: var(--radius-md, 8px); background: var(--color-accent-900); padding: 26px 18px; text-align: center">
+          <div style="font-size: 13px; color: var(--color-accent-200)">Drop CSV here</div>
+          <div style="font-size: 11px; color: var(--color-neutral-400); margin-top: 5px">or choose a file — report date is read from the filename and the Received column</div>
+          <button type="button" class="btn btn-primary" style="margin-top: 14px; font-size: 12px">Choose file</button>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 16px">
+          <div style="font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-neutral-500)">Pre-import checks</div>
+          <sc-for list="{{ checks }}" as="c" hint-placeholder-count="5">
+            <div style="display: flex; justify-content: space-between; gap: 10px; font-size: 12px; padding: 6px 0; border-bottom: 1px solid var(--color-divider)">
+              <span style="color: var(--color-neutral-300)">{{ c.label }}</span>
+              <span style="color: var(--color-accent-300)">{{ c.value }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="background: var(--color-surface); border: 1px solid var(--color-neutral-800); border-radius: var(--radius-md, 8px); padding: 14px 16px 8px">
+        <div style="font-family: var(--font-heading); font-size: 13px; font-weight: 500; margin-bottom: 10px">Import audit trail</div>
+        <table class="table" style="width: 100%; font-size: 12px">
+          <thead>
+            <tr>
+              <th style="text-align: left">Report date</th>
+              <th style="text-align: left">File</th>
+              <th style="text-align: right">Rows</th>
+              <th style="text-align: right">New / Inv.</th>
+              <th style="text-align: left">Checksum</th>
+              <th style="text-align: left">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <sc-for list="{{ importRows }}" as="r" hint-placeholder-count="4">
+              <tr>
+                <td style="text-align: left; white-space: nowrap">{{ r.date }}</td>
+                <td style="text-align: left; color: var(--color-neutral-400)">{{ r.file }}</td>
+                <td style="text-align: right">{{ r.rows }}</td>
+                <td style="text-align: right">{{ r.split }}</td>
+                <td style="text-align: left; font-family: ui-monospace, monospace; color: var(--color-neutral-500)">{{ r.hash }}</td>
+                <td style="text-align: left; color: {{ r.statusColor }}">{{ r.status }}</td>
+              </tr>
+            </sc-for>
+          </tbody>
+        </table>
+        <div style="display: flex; flex-direction: column; gap: 8px; padding: 14px 0 10px">
+          <div style="font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-neutral-500)">Validation notes</div>
+          <sc-for list="{{ validations }}" as="v" hint-placeholder-count="3">
+            <div style="font-size: 12px; color: var(--color-neutral-300)">{{ v }}</div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;countUnit&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;rows&quot;,&quot;projects&quot;],&quot;default&quot;:&quot;rows&quot;,&quot;tsType&quot;:&quot;'rows' | 'projects'&quot;,&quot;section&quot;:&quot;Counting&quot;},&quot;openingBacklog&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:0,&quot;min&quot;:0,&quot;max&quot;:500,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Backlog&quot;}}">
+const HDR = {
+  'Status': 'status', 'Type': 'type', 'WO / PO Number': 'woNumber', 'Received': 'received',
+  'Source': 'source', 'Customer': 'customer', 'Project ID': 'projectId', 'Project': 'project',
+  'Project Status': 'projectStatus', 'Business Unit': 'businessUnit', 'Tasks': 'tasks',
+  'Tasks Complete': 'tasksComplete', 'Vendors': 'vendors', 'Invoice #': 'invoiceNo',
+  'Invoice Total': 'invoiceTotal', 'Vendor Cost': 'vendorCost', 'Vendor DNE': 'vendorDne',
+  'Gross Margin': 'grossMargin', 'Gross Margin %': 'grossMarginPct',
+  'Customer Authorization': 'authorization', 'Authorization Remaining': 'authRemaining'
+};
+const STATUS_MAP = { 'received': 'new', 'invoiced': 'invoiced' };
+
+function parseCsv(text) {
+  const rows = [];
+  let row = [], field = '', q = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (q) {
+      if (c === '"') { if (text[i + 1] === '"') { field += '"'; i++; } else q = false; }
+      else field += c;
+    } else if (c === '"') q = true;
+    else if (c === ',') { row.push(field); field = ''; }
+    else if (c === '\n') { row.push(field); field = ''; if (row.some(v => v.trim() !== '')) rows.push(row); row = []; }
+    else if (c !== '\r') field += c;
+  }
+  row.push(field);
+  if (row.some(v => v.trim() !== '')) rows.push(row);
+  return rows;
+}
+const num = v => { if (v == null) return null; const s = String(v).replace(/[$,\s]/g, ''); if (s === '') return null; const n = parseFloat(s); return isNaN(n) ? null : n; };
+const money = n => (n < 0 ? '-' : '') + '$' + Math.abs(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const compact = n => n >= 1000 ? '$' + (n / 1000).toFixed(1) + 'k' : '$' + Math.round(n);
+const hash = s => { let h = 5381; for (let i = 0; i < s.length; i++) h = ((h * 33) ^ s.charCodeAt(i)) >>> 0; return h.toString(16).padStart(8, '0'); };
+
+class Component extends DCLogic {
+  state = { view: 'dashboard', range: 'all', customer: 'all', type: 'all', reports: null };
+
+  componentDidMount() {
+    import(new URL('./wo-data.js', location.href).href)
+      .then(m => this.setState({ reports: m.reports }))
+      .catch(e => console.error('report load failed', e));
+  }
+
+  parsedDays() {
+    const reports = this.state.reports || [];
+    return reports.map(r => {
+      const table = parseCsv(r.csv);
+      const head = (table[0] || []).map(h => HDR[h.trim()] || h.trim());
+      const rows = table.slice(1).map(cells => {
+        const o = {};
+        head.forEach((k, i) => { o[k] = (cells[i] || '').trim(); });
+        o.kind = STATUS_MAP[(o.status || '').toLowerCase()] || 'other';
+        return o;
+      });
+      const d = new Date(r.date + 'T12:00:00');
+      const dow = d.getUTCDay();
+      return {
+        date: r.date, weekday: r.weekday, filename: r.filename, rows,
+        weekend: dow === 0 || dow === 6,
+        label: r.weekday + ' ' + r.date.slice(8),
+        checksum: hash(r.csv)
+      };
+    });
+  }
+
+  metrics(rows) {
+    const unit = this.props.countUnit || 'rows';
+    const nw = rows.filter(r => r.kind === 'new');
+    const iv = rows.filter(r => r.kind === 'invoiced');
+    const distinct = list => new Set(list.map(r => r.projectId)).size;
+    const rec = unit === 'projects' ? distinct(nw) : nw.length;
+    const inv = unit === 'projects' ? distinct(iv) : iv.length;
+    const sum = (list, k) => list.reduce((a, r) => a + (num(r[k]) || 0), 0);
+    const revenue = sum(iv, 'invoiceTotal');
+    const vendorCost = sum(iv, 'vendorCost');
+    const withMargin = iv.filter(r => num(r.grossMargin) != null);
+    const grossProfit = sum(withMargin, 'grossMargin');
+    const marginBase = sum(withMargin, 'invoiceTotal');
+    return {
+      rec, inv, net: rec - inv,
+      thru: rec > 0 ? inv / rec : null,
+      revenue, vendorCost, grossProfit,
+      gmPct: marginBase > 0 ? grossProfit / marginBase : null,
+      marginBase,
+      newAuth: sum(nw, 'authorization'),
+      authRemaining: sum(nw, 'authRemaining'),
+      newProjects: distinct(nw),
+      invRows: iv, newRows: nw,
+      unpriced: revenue - marginBase
+    };
+  }
+
+  filter(rows) {
+    const { customer, type } = this.state;
+    return rows.filter(r =>
+      (customer === 'all' || r.customer === customer) &&
+      (type === 'all' || r.type === type));
+  }
+
+  renderVals() {
+    const days = this.parsedDays();
+    const loading = !days.length;
+    const range = this.state.range;
+    const inRange = days.filter(d =>
+      range === 'all' ? true : range === 'business' ? !d.weekend : d.date === range);
+    const dayData = days.map(d => ({ d, m: this.metrics(this.filter(d.rows)) }));
+    const shown = dayData.filter(x => inRange.some(r => r.date === x.d.date));
+    const agg = this.metrics(this.filter(inRange.flatMap(d => d.rows)));
+
+    const rangeOpts = [
+      { id: 'all', label: 'All 4 days' },
+      { id: 'business', label: 'Business days' }
+    ].concat(days.map(d => ({ id: d.date, label: d.label }))).map(o => ({
+      label: o.label,
+      cls: range === o.id ? 'btn-primary' : 'btn-ghost',
+      onClick: () => this.setState({ range: o.id })
+    }));
+
+    const allRows = days.flatMap(d => d.rows);
+    const customerOpts = [{ value: 'all', label: 'All customers' }]
+      .concat([...new Set(allRows.map(r => r.customer))].sort().map(c => ({ value: c, label: c })));
+    const typeOpts = [{ value: 'all', label: 'All' }]
+      .concat([...new Set(allRows.map(r => r.type))].filter(Boolean).sort().map(t => ({ value: t, label: t })));
+
+    const bizDays = inRange.filter(d => !d.weekend).length;
+    const calDays = inRange.length || 1;
+    const pct = v => v == null ? '—' : (v * 100).toFixed(1) + '%';
+
+    const kpis = loading ? [] : [
+      { label: 'New work orders', value: String(agg.rec), sub: agg.newProjects + ' distinct projects', color: 'var(--color-text)' },
+      { label: 'Invoiced', value: String(agg.inv), sub: (agg.inv / calDays).toFixed(1) + '/cal day · ' + (bizDays ? (agg.inv / bizDays).toFixed(1) : '0.0') + '/biz day', color: 'var(--color-text)' },
+      { label: 'Net backlog movement', value: (agg.net > 0 ? '+' : '') + agg.net, sub: agg.net > 0 ? 'backlog grew' : agg.net < 0 ? 'backlog reduced' : 'held flat', color: agg.net > 0 ? 'var(--color-accent-300)' : 'var(--color-text)' },
+      { label: 'Throughput', value: pct(agg.thru), sub: agg.inv + ' invoiced / ' + agg.rec + ' received', color: 'var(--color-text)' },
+      { label: 'Invoice revenue', value: money(agg.revenue), sub: (bizDays ? money(agg.revenue / bizDays) : '—') + ' per business day', color: 'var(--color-text)' },
+      { label: 'New authorized value', value: money(agg.newAuth), sub: 'on ' + agg.rec + ' receipts', color: 'var(--color-text)' },
+      { label: 'Vendor cost', value: money(agg.vendorCost), sub: 'recorded on invoiced rows', color: 'var(--color-text)' },
+      { label: 'Gross profit', value: money(agg.grossProfit), sub: 'where margin populated', color: 'var(--color-text)' },
+      { label: 'Gross margin', value: pct(agg.gmPct), sub: 'weighted on ' + money(agg.marginBase), color: 'var(--color-accent-300)' },
+      { label: 'Authorization remaining', value: money(agg.authRemaining), sub: 'headroom on new receipts', color: 'var(--color-text)' }
+    ];
+
+    const maxCount = Math.max(1, ...dayData.map(x => Math.max(x.m.rec, x.m.inv)));
+    const barH = v => Math.max(v > 0 ? 4 : 2, Math.round(v / maxCount * 118));
+    const flowDays = dayData.map(x => ({
+      label: x.d.label,
+      labelColor: x.d.weekend ? 'var(--color-neutral-600)' : 'var(--color-neutral-300)',
+      colBg: x.d.weekend ? 'rgba(233,233,237,0.03)' : 'transparent',
+      note: x.d.weekend ? (x.m.rec + x.m.inv === 0 ? 'zero activity' : '') : '',
+      recH: barH(x.m.rec), invH: barH(x.m.inv),
+      recLabel: x.m.rec || '0', invLabel: x.m.inv || '0'
+    }));
+
+    const opening = this.props.openingBacklog || 0;
+    let run = opening;
+    const series = dayData.map(x => { run += x.m.net; return { label: x.d.label, v: run }; });
+    const vals = series.map(s => s.v).concat([opening]);
+    const lo = Math.min(...vals, 0), hi = Math.max(...vals, 1);
+    const span = (hi - lo) || 1;
+    const y = v => 116 - ((v - lo) / span) * 96;
+    const x = i => series.length > 1 ? 16 + i * (288 / (series.length - 1)) : 160;
+    const pts = series.map((s, i) => x(i).toFixed(1) + ',' + y(s.v).toFixed(1));
+    const backlogDots = series.map((s, i) => ({ x: x(i).toFixed(1), y: y(s.v).toFixed(1), label: (s.v > 0 ? '+' : '') + s.v }));
+
+    const maxRev = Math.max(1, ...dayData.map(x2 => x2.m.revenue));
+    const revDays = dayData.map(x2 => {
+      const total = Math.round(x2.m.revenue / maxRev * 96);
+      const profit = x2.m.revenue > 0 ? Math.round(x2.m.grossProfit / x2.m.revenue * total) : 0;
+      return {
+        label: x2.d.label,
+        labelColor: x2.d.weekend ? 'var(--color-neutral-600)' : 'var(--color-neutral-300)',
+        revLabel: x2.m.revenue > 0 ? compact(x2.m.revenue) : '—',
+        profitH: profit, costH: Math.max(total - profit, x2.m.revenue > 0 ? 2 : 2)
+      };
+    });
+
+    const maxAuth = Math.max(1, ...dayData.map(x2 => x2.m.newAuth));
+    const authDays = dayData.map(x2 => ({
+      label: x2.d.label,
+      labelColor: x2.d.weekend ? 'var(--color-neutral-600)' : 'var(--color-neutral-300)',
+      label2: x2.m.newAuth > 0 ? compact(x2.m.newAuth) : '—',
+      h: Math.max(2, Math.round(x2.m.newAuth / maxAuth * 96))
+    }));
+
+    const byCustomer = {};
+    agg.invRows.forEach(r => {
+      const c = byCustomer[r.customer] || (byCustomer[r.customer] = { rev: 0, n: 0 });
+      c.rev += num(r.invoiceTotal) || 0; c.n += 1;
+    });
+    this.filter(inRange.flatMap(d => d.rows)).filter(r => r.kind === 'new').forEach(r => {
+      const c = byCustomer[r.customer] || (byCustomer[r.customer] = { rev: 0, n: 0, newN: 0 });
+      c.newN = (c.newN || 0) + 1;
+    });
+    const mixTotal = Object.values(byCustomer).reduce((a, c) => a + c.rev, 0) || 1;
+    const mix = Object.entries(byCustomer).sort((a, b) => b[1].rev - a[1].rev).map(([name, c]) => ({
+      name,
+      right: (c.rev > 0 ? compact(c.rev) + ' · ' + Math.round(c.rev / mixTotal * 100) + '%' : 'no invoicing') + (c.newN ? ' · ' + c.newN + ' new' : ''),
+      pct: Math.max(c.rev / mixTotal * 100, 0.8).toFixed(1)
+    }));
+
+    const scorecard = dayData.map(x2 => ({
+      date: x2.d.weekday + ' ' + x2.d.date.slice(5).replace('-', '/'),
+      color: x2.d.weekend ? 'var(--color-neutral-600)' : 'var(--color-text)',
+      bg: x2.d.weekend ? 'rgba(233,233,237,0.02)' : 'transparent',
+      rec: x2.m.rec, inv: x2.m.inv,
+      net: (x2.m.net > 0 ? '+' : '') + x2.m.net,
+      netColor: x2.m.net > 0 ? 'var(--color-accent-300)' : x2.d.weekend ? 'var(--color-neutral-600)' : 'var(--color-neutral-400)',
+      thru: x2.m.thru == null ? '—' : (x2.m.thru * 100).toFixed(1) + '%',
+      rev: x2.m.revenue ? money(x2.m.revenue) : '—',
+      auth: x2.m.newAuth ? money(x2.m.newAuth) : '—',
+      cost: x2.m.vendorCost ? money(x2.m.vendorCost) : '—',
+      profit: x2.m.grossProfit ? money(x2.m.grossProfit) : '—',
+      gm: x2.m.gmPct == null ? '—' : (x2.m.gmPct * 100).toFixed(1) + '%'
+    })).concat(loading ? [] : [{
+      date: 'Period total', color: 'var(--color-accent-200)', bg: 'rgba(145,132,217,0.07)',
+      rec: agg.rec, inv: agg.inv, net: (agg.net > 0 ? '+' : '') + agg.net,
+      netColor: 'var(--color-accent-200)',
+      thru: pct(agg.thru), rev: money(agg.revenue), auth: money(agg.newAuth),
+      cost: money(agg.vendorCost), profit: money(agg.grossProfit), gm: pct(agg.gmPct)
+    }]);
+
+    const insights = [];
+    if (!loading) {
+      const biz = dayData.filter(x2 => !x2.d.weekend);
+      const growing = biz.filter(x2 => x2.m.net > 0).length;
+      insights.push({ dot: 'var(--color-accent)', text: 'Incoming work exceeded invoicing on ' + growing + ' of ' + biz.length + ' business days; net backlog movement for the period is ' + (agg.net > 0 ? '+' : '') + agg.net + ' work orders.' });
+      const first = biz[0], last = biz[biz.length - 1];
+      if (first && last && first !== last && first.m.thru != null && last.m.thru != null)
+        insights.push({ dot: last.m.thru < first.m.thru ? 'var(--color-accent)' : 'var(--color-neutral-600)', text: 'Throughput moved from ' + (first.m.thru * 100).toFixed(0) + '% on ' + first.d.label + ' to ' + (last.m.thru * 100).toFixed(0) + '% on ' + last.d.label + ', on ' + (last.m.revenue > first.m.revenue ? 'higher' : 'lower') + ' invoiced revenue.' });
+      const zero = dayData.filter(x2 => x2.d.weekend && x2.m.rec + x2.m.inv === 0).map(x2 => x2.d.label);
+      if (zero.length) insights.push({ dot: 'var(--color-neutral-600)', text: zero.join(' and ') + ' are confirmed zero-activity reports — received and processed, not missing imports. Business-day averages exclude them.' });
+      const top = mix[0];
+      if (top && top.pct > 0) insights.push({ dot: 'var(--color-neutral-600)', text: top.name + ' accounts for ' + Math.round(byCustomer[top.name].rev / mixTotal * 100) + '% of invoiced revenue in this period.' });
+      if (agg.unpriced > 0) insights.push({ dot: 'var(--color-accent)', text: money(agg.unpriced) + ' of invoiced revenue carries no vendor cost or margin, so gross margin is weighted on ' + money(agg.marginBase) + ' rather than the full ' + money(agg.revenue) + '.' });
+      const dupes = agg.rec - agg.newProjects;
+      if (dupes > 0) insights.push({ dot: 'var(--color-neutral-600)', text: agg.rec + ' receipt rows resolve to ' + agg.newProjects + ' distinct Project IDs — Project ID alone is not a unique work-order key.' });
+      if (opening === 0) insights.push({ dot: 'var(--color-neutral-600)', text: 'No opening backlog count is loaded, so the trend chart shows cumulative movement, not current backlog.' });
+    }
+
+    const importRows = days.map(d => {
+      const m = this.metrics(d.rows);
+      return {
+        date: d.weekday + ' ' + d.date, file: d.filename, rows: d.rows.length,
+        split: m.rec + ' / ' + m.inv, hash: d.checksum,
+        status: d.rows.length === 0 ? 'Confirmed zero activity' : 'Imported',
+        statusColor: d.rows.length === 0 ? 'var(--color-neutral-400)' : 'var(--color-accent-300)'
+      };
+    });
+
+    const last = days[days.length - 1];
+    const checks = loading ? [] : [
+      { label: 'Detected report date', value: last ? last.date : '—' },
+      { label: 'Rows parsed', value: last ? String(last.rows.length) : '—' },
+      { label: 'Columns mapped', value: Object.keys(HDR).length + ' / ' + Object.keys(HDR).length },
+      { label: 'Checksum', value: last ? last.checksum : '—' },
+      { label: 'Already imported', value: 'Yes — matching date and checksum' }
+    ];
+
+    return {
+      isDash: this.state.view === 'dashboard',
+      isImport: this.state.view === 'import',
+      dashCls: this.state.view === 'dashboard' ? 'btn-primary' : 'btn-ghost',
+      importCls: this.state.view === 'import' ? 'btn-primary' : 'btn-ghost',
+      goDash: () => this.setState({ view: 'dashboard' }),
+      goImport: () => this.setState({ view: 'import' }),
+      rangeOpts, customerOpts, typeOpts,
+      customer: this.state.customer, type: this.state.type,
+      onCustomer: e => this.setState({ customer: e.target.value }),
+      onType: e => this.setState({ type: e.target.value }),
+      periodNote: loading ? 'Loading daily reports…' : inRange.length + ' calendar days · ' + bizDays + ' business days · ' + this.filter(inRange.flatMap(d => d.rows)).length + ' rows in scope',
+      kpis, flowDays, revDays, authDays, mix, scorecard, insights, importRows, checks,
+      backlogTitle: opening > 0 ? 'Current backlog' : 'Cumulative backlog movement',
+      backlogSub: opening > 0 ? 'Opening count ' + opening + ' plus daily movement' : 'Not current backlog — no opening count loaded',
+      backlogPoints: pts.join(' '),
+      backlogArea: pts.length ? pts.join(' ') + ' ' + x(series.length - 1).toFixed(1) + ',' + y(lo).toFixed(1) + ' ' + x(0).toFixed(1) + ',' + y(lo).toFixed(1) : '',
+      zeroY: y(0).toFixed(1),
+      backlogDots,
+      validations: [
+        'Zero-row reports accepted as valid: two weekend files stored as confirmed zero activity.',
+        'Duplicate protection keys on report date + filename + content checksum, not Project ID.',
+        'Rows sharing a Project ID with different WO/PO numbers are stored as separate events.',
+        'Status values found in source: Received, Invoiced.'
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

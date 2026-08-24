@@ -1,0 +1,10 @@
+Status,Type,"WO / PO Number",Received,Source,Customer,"Project ID",Project,"Project Status","Business Unit",Tasks,"Tasks Complete",Vendors,"Invoice #","Invoice Total","Vendor Cost","Vendor DNE","Gross Margin","Gross Margin %","Customer Authorization","Authorization Remaining"
+Invoiced,WO,WO-1001,2026-07-02,quickbase,"Northwind Facilities",P-100,"HVAC Repair - Northwind Eastgate Branch","Finalizing Work","Noontide Service Corporation USA Inc.",2,2,"Acme Plumbing & Heating Co., Inc., Borealis Energy","INV-9001, INV-9002",1000.00,600.00,1200.00,400.00,40.0,1000.00,0.00
+Invoiced,WO,WO-1002,2026-06-16,quickbase,"Cascade Retail Group",P-101,"Shelf Removal",A/R,"Noontide Service Corporation USA Inc.",1,1,"Handy Services of the Midwest",INV-9003,2000.00,1200.00,2400.00,800.00,40.0,2000.00,0.00
+Invoiced,PO,PO-1003,,quickbase,"Northwind Facilities",P-102,"Door lock replacement","Work Execution","Noontide Service Corporation USA Inc.",1,1,"Ridgeline Security",INV-9004,500.00,,,,,500.00,0.00
+Invoiced,WO,WO-1004,2026-07-10,legacy,"Summit Health Partners",P-103," Pest Control > Quarterly Service",A/R,"Noontide Service Corporation USA Inc.",1,1,"Wayfare Pest Services",INV-9005,1500.00,900.00,1800.00,600.00,40.0,1500.00,0.00
+Received,WO,WO-2001,2026-09-17,quickbase,"Northwind Facilities",P-100,"Chiller inspection",Quoting,"Noontide Service Corporation USA Inc.",0,0,,,,,,,,1000.00,100.00
+Received,WO,WO-2002,2026-09-17,quickbase,"Northwind Facilities",P-100,"Chiller parts",Quoting,"Noontide Service Corporation USA Inc.",0,0,,,,,,,,2000.00,200.00
+Received,PO,PO-2003,,quickbase,"Cascade Retail Group",P-101,"Lighting retrofit",Quoting,"Noontide Service Corporation USA Inc.",0,0,,,,,,,,3000.00,300.00
+Received,WO,WO-2004,2026-09-16,legacy,"Cascade Retail Group",P-101,"Lighting permits",Quoting,"Noontide Service Corporation USA Inc.",0,0,,,,,,,,4000.00,400.00
+Received,WO,WO-2005,2026-09-17,quickbase_task,"Summit Health Partners",P-102,"Emergency plumbing",Quoting,"Noontide Service Corporation USA Inc.",0,0,,,,,,,,5000.00,500.00

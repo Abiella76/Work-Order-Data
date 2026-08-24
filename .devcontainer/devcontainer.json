@@ -1,0 +1,25 @@
+{
+  "name": "Work Order Operations",
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:1-22-bookworm",
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
+  },
+  "customizations": {
+    "codespaces": {
+      "openFiles": ["README.md", "app/page.tsx"]
+    },
+    "vscode": {
+      "extensions": ["dbaeumer.vscode-eslint", "esbenp.prettier-vscode", "bradlc.vscode-tailwindcss"]
+    }
+  },
+  "updateContentCommand": "npm install && cp -n .env.example .env || true",
+  "postAttachCommand": {
+    "db": "docker compose up -d",
+    "server": "npm run dev"
+  },
+  "portsAttributes": {
+    "3000": { "label": "Application", "onAutoForward": "openPreview" },
+    "5432": { "label": "Postgres", "onAutoForward": "silent" }
+  },
+  "forwardPorts": [3000]
+}

@@ -1,0 +1,7 @@
+Status,Type,"WO / PO Number",Received,Source,Customer,"Project ID",Project,"Project Status","Business Unit",Tasks,"Tasks Complete",Vendors,"Invoice #","Invoice Total","Vendor Cost","Vendor DNE","Gross Margin","Gross Margin %","Customer Authorization","Authorization Remaining"
+Invoiced,WO,WO-1005,2026-08-01,quickbase,"Cascade Retail Group",P-200,"Roof leak repair",A/R,"Noontide Service Corporation USA Inc.",1,1,"Apex Roofing",INV-9006,800.00,500.00,900.00,200.00,25.0,800.00,0.00
+Invoiced,WO,WO-1006,2026-08-04,quickbase,"Northwind Facilities",P-201,"Generator service",A/R,"Noontide Service Corporation USA Inc.",2,2,"Voltway Electric",INV-9007,1200.00,700.00,1400.00,300.00,25.0,1200.00,0.00
+Invoiced,PO,PO-1007,2026-08-05,legacy,"Summit Health Partners",P-202,"Signage install",Quoting,"Noontide Service Corporation USA Inc.",1,1,"Beacon Signs",INV-9008,400.00,,600.00,,,400.00,0.00
+Received,WO,WO-2006,2026-09-18,quickbase,"Northwind Facilities",P-200,"Boiler assessment",Quoting,"Noontide Service Corporation USA Inc.",0,0,,,,,,,,2500.00,0.00
+Received,WO,WO-2007,2026-09-18,quickbase,"Northwind Facilities",P-200,"Boiler parts",Quoting,"Noontide Service Corporation USA Inc.",0,0,,,,,,,,2500.00,250.00
+Cancelled,WO,WO-2008,2026-09-18,quickbase,"Cascade Retail Group",P-203,"Withdrawn request",Cancelled,"Noontide Service Corporation USA Inc.",0,0,,,,,,,,9999.00,9999.00
