@@ -27,17 +27,36 @@ don't paste it into a file that gets committed. `.env` is gitignored.
 
 ## 2. Create the tables
 
-Migrations do not run themselves. From a local checkout, run them once against
-the Neon database:
+Migrations do not run themselves, and nothing else creates the tables. Skip this
+and the deployed app fails with `relation "reports" does not exist`.
+
+Either route works; both produce the same eight tables.
+
+### Route A — Neon's SQL Editor (no tooling required)
+
+1. In Neon's left sidebar, open **SQL Editor**.
+2. Paste the entire contents of
+   [`db/migrations/0000_misty_xavin.sql`](../db/migrations/0000_misty_xavin.sql)
+   and press **Run**.
+3. Open **Tables** in the sidebar to confirm eight tables exist.
+
+This needs nothing installed — no Node, no terminal, no checkout. It is the
+right route for a first deployment, and for anyone who does not otherwise work
+at a command line.
+
+Its one limitation: it does not record the migration in Drizzle's bookkeeping
+table, so a later `npm run db:migrate` against the same database would try to
+re-create what is already there. Stay on one route per database, or use Route B
+from the start if you expect to change the schema.
+
+### Route B — the migration tool (needs Node 22)
 
 ```bash
 git clone https://github.com/Abiella76/Work-Order-Data
 cd Work-Order-Data
-git checkout claude/work-order-data-repo-7jzolp
 npm install
 
-# Paste your Neon string here — note the quotes, the URL contains characters
-# the shell would otherwise interpret.
+# Quote the URL — it contains characters the shell would otherwise interpret.
 export DATABASE_URL="postgresql://...?sslmode=require"
 npm run db:migrate
 ```
@@ -45,8 +64,9 @@ npm run db:migrate
 You should see `migrations applied successfully`. Verify with
 `npm run db:studio`, which opens a browser view of the empty tables.
 
-Re-run `npm run db:migrate` after any future schema change. It is safe to run
-repeatedly — already-applied migrations are skipped.
+Re-run it after any future schema change; it is safe to run repeatedly, since
+already-applied migrations are skipped. This is the route to use once the schema
+starts evolving.
 
 ## 3. Deploy
 
