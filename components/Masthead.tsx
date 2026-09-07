@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { PodSelector } from './PodSelector';
 
 /** The one-row header. The active view takes the accent outline, the other stays ghost. */
 export function Masthead({ view }: { view: 'dashboard' | 'imports' | 'corporate' }) {
@@ -9,7 +10,9 @@ export function Masthead({ view }: { view: 'dashboard' | 'imports' | 'corporate'
         <div className="masthead-rule" />
         <div className="masthead-org">Noontide Service Corporation USA Inc.</div>
       </div>
-      <nav className="masthead-nav">
+      <div className="masthead-right">
+        <PodSelector />
+        <nav className="masthead-nav">
         <Link href="/" className={`btn ${view === 'dashboard' ? 'btn-active' : 'btn-ghost'}`}>
           Work Orders
         </Link>
@@ -22,7 +25,8 @@ export function Masthead({ view }: { view: 'dashboard' | 'imports' | 'corporate'
         <Link href="/imports" className={`btn ${view === 'imports' ? 'btn-active' : 'btn-ghost'}`}>
           Import log
         </Link>
-      </nav>
+        </nav>
+      </div>
     </header>
   );
 }

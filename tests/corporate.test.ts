@@ -20,6 +20,7 @@ import { dollars } from './helpers';
 import { describeDbError } from '../lib/db-error';
 import { SETUP_STATEMENTS } from '../lib/setup-sql';
 import * as schema from '../db/schema';
+import { PODS, activePods, resolvePod, DEFAULT_POD_ID } from '../lib/pods';
 
 /**
  * Corporate snapshot maths, over a synthetic client set shaped like the real
@@ -420,5 +421,28 @@ describe('concentration pie slices', () => {
     );
     expect(result.slices).toEqual([]);
     expect(result.total).toBe(0);
+  });
+});
+
+describe('pods', () => {
+  it('lists the planned pods, with only the live one available', () => {
+    expect(PODS.map((p) => p.label)).toEqual(['Pod 1', 'Pod 2', 'Pod 3']);
+    expect(PODS.filter((p) => p.available).map((p) => p.id)).toEqual(['pod-1']);
+  });
+
+  it('falls back to the live pod for an unknown or not-yet-live id', () => {
+    // A page must never render as though it holds another pod's figures.
+    expect(resolvePod('pod-2').id).toBe(DEFAULT_POD_ID);
+    expect(resolvePod('pod-9').id).toBe(DEFAULT_POD_ID);
+    expect(resolvePod(undefined).id).toBe(DEFAULT_POD_ID);
+    expect(resolvePod(null).id).toBe(DEFAULT_POD_ID);
+  });
+
+  it('resolves a live pod to itself', () => {
+    expect(resolvePod('pod-1').id).toBe('pod-1');
+  });
+
+  it('keeps the default pod in the available set', () => {
+    expect(activePods().map((p) => p.id)).toContain(DEFAULT_POD_ID);
   });
 });

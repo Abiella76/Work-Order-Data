@@ -1206,3 +1206,48 @@ h4 {
   flex: none;
   font-variant-numeric: tabular-nums;
 }
+
+/* ── pod selector ─────────────────────────────────────────────────────── */
+
+.masthead-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex: none;
+}
+
+.pod-selector {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.pod-label {
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-neutral-500);
+}
+
+/* A disabled select still has to read as current state, not as broken chrome:
+   it keeps full-strength text and only loses the interactive affordances. */
+.pod-selector .select {
+  /* Sized to the option text, not to the longest "not yet in service" label —
+     the widest entry is one nobody can pick. */
+  width: 92px;
+}
+
+.pod-selector .select:disabled {
+  opacity: 1;
+  color: var(--color-text);
+  background: var(--color-surface);
+  border-color: var(--color-neutral-800);
+  cursor: default;
+}
+
+@media (max-width: 720px) {
+  .masthead-right {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+}
