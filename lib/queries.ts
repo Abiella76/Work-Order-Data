@@ -156,3 +156,61 @@ export async function loadOpeningBacklog(): Promise<number> {
     .limit(1);
   return snapshot?.openWorkOrders ?? 0;
 }
+
+/**
+ * Client accounts and their revenue by period, for the corporate snapshot.
+ *
+ * Returns the same `ClientRow` shape the pure corporate layer consumes, so the
+ * page and the tests exercise identical code.
+ */
+export async function loadCorporateSnapshot(): Promise<{
+  clients: import('./kpi/corporate').ClientRow[];
+  periods: import('./kpi/corporate').Period[];
+}> {
+  const db = getDb();
+
+  const periodRows = await db
+    .select()
+    .from(schema.revenuePeriods)
+    .orderBy(asc(schema.revenuePeriods.sortOrder));
+
+  const periods = periodRows.map((p) => ({
+    key: p.key,
+    label: p.label,
+    startsOn: p.startsOn,
+    endsOn: p.endsOn,
+    isPartial: p.isPartial === 'true',
+    sourceTotal: parseMoney(p.sourceTotal),
+    sortOrder: p.sortOrder,
+  }));
+
+  if (periods.length === 0) return { clients: [], periods: [] };
+
+  const accounts = await db.select().from(schema.clientAccounts);
+  const amounts = await db
+    .select({
+      clientId: schema.clientPeriodRevenue.clientId,
+      periodId: schema.clientPeriodRevenue.periodId,
+      amount: schema.clientPeriodRevenue.amount,
+    })
+    .from(schema.clientPeriodRevenue);
+
+  const periodKeyById = new Map(periodRows.map((p) => [p.id, p.key]));
+  const revenueByClient = new Map<number, Record<string, number>>();
+  for (const a of amounts) {
+    const key = periodKeyById.get(a.periodId);
+    const cents = parseMoney(a.amount);
+    if (!key || cents === null) continue;
+    const bucket = revenueByClient.get(a.clientId) ?? {};
+    bucket[key] = cents;
+    revenueByClient.set(a.clientId, bucket);
+  }
+
+  const clients = accounts.map((a) => ({
+    name: a.name,
+    status: a.status as import('./kpi/corporate').ClientStatus,
+    revenue: revenueByClient.get(a.id) ?? {},
+  }));
+
+  return { clients, periods };
+}

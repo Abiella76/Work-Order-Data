@@ -1,0 +1,11 @@
+Client,Period,Amount,Status
+Northwind Facilities,STATEMENT,"$500,000.00",Active
+Cascade Retail Group,STATEMENT,"$250,000.00",Active
+Summit Health Partners,STATEMENT,"$250,000.00",Active
+Lakeshore Logistics,FY2024,"$120,000.00",Inactive
+Lakeshore Logistics,FY2025,—,Inactive
+Vantage Financial Group,FY2024,"$80,000.00",Inactive
+Vantage Financial Group,FY2025,$0.00,Inactive
+Harbor Point Services,FY2024,"-$40,000.00",Inactive
+Harbor Point Services,FY2025,—,Inactive
+Northwind Facilities Inc,FY2024,"$10,000.00",Inactive

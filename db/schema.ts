@@ -159,3 +159,69 @@ export const backlogSnapshots = pgTable('backlog_snapshots', {
   openWorkOrders: integer('open_work_orders').notNull(),
   source: text('source'),
 });
+
+/**
+ * Reporting periods for the corporate snapshot.
+ *
+ * These are the periods the finance report actually uses, not rolling windows.
+ * `isPartial` matters: the current statement covers 1 Nov 2025 – 3 Sep 2026,
+ * about ten months, so comparing it to a full fiscal year without saying so
+ * would understate it by roughly a sixth.
+ */
+export const revenuePeriods = pgTable('revenue_periods', {
+  id: bigserial('id', { mode: 'number' }).primaryKey(),
+  /** Stable machine key, e.g. 'FY2024' | 'STATEMENT_2025_2026'. */
+  key: text('key').notNull().unique(),
+  label: text('label').notNull(),
+  startsOn: date('starts_on').notNull(),
+  endsOn: date('ends_on').notNull(),
+  /** True when the period is shorter than a full year. */
+  isPartial: text('is_partial').notNull().default('false'),
+  /** The source report's own stated total, for reconciliation. */
+  sourceTotal: numeric('source_total', { precision: 14, scale: 2 }),
+  /** Display order, oldest first. */
+  sortOrder: integer('sort_order').notNull(),
+});
+
+/**
+ * A customer/account as the finance report names it.
+ *
+ * Names are kept exactly as the source lists them. The source contains closely
+ * related spellings (`Acme Services` and `Acme Services USA`) that may or may not
+ * be one account; merging them is a business decision, so the importer never
+ * guesses. `aliasOf` exists to record such a decision once someone makes it.
+ */
+export const clientAccounts = pgTable(
+  'client_accounts',
+  {
+    id: bigserial('id', { mode: 'number' }).primaryKey(),
+    name: text('name').notNull().unique(),
+    /** 'active' | 'inactive', as classified by the source report's rule. */
+    status: text('status').notNull(),
+    /** Set only when someone has confirmed two spellings are one account. */
+    aliasOf: bigint('alias_of', { mode: 'number' }),
+  },
+  (t) => ({ byStatus: index('client_accounts_status_idx').on(t.status) }),
+);
+
+/**
+ * Revenue for one account in one period.
+ *
+ * A missing row means the account had no activity in that period. An amount of
+ * exactly 0 is a different fact — the source distinguishes them, and so does
+ * this table. Amounts can be negative: credits and reversals appear in the
+ * source, some of them large.
+ */
+export const clientPeriodRevenue = pgTable(
+  'client_period_revenue',
+  {
+    clientId: bigint('client_id', { mode: 'number' })
+      .notNull()
+      .references(() => clientAccounts.id, { onDelete: 'cascade' }),
+    periodId: bigint('period_id', { mode: 'number' })
+      .notNull()
+      .references(() => revenuePeriods.id, { onDelete: 'cascade' }),
+    amount: numeric('amount', { precision: 14, scale: 2 }).notNull(),
+  },
+  (t) => ({ pk: primaryKey({ columns: [t.clientId, t.periodId] }) }),
+);

@@ -80,10 +80,17 @@ export function formatMoney(cents: Cents): string {
   return `${sign}$${dollars.toLocaleString('en-US')}.${rem}`;
 }
 
-/** `$7.3k` for chart labels; exact dollars below $1,000. */
+/**
+ * `$3.1M` / `$7.3k` for chart labels; exact dollars below $1,000.
+ *
+ * The millions tier matters once company-level figures are plotted: without it
+ * three million dollars renders as `$3051.2k`, which is unreadable at a glance
+ * and defeats the point of a compact label.
+ */
 export function formatMoneyCompact(cents: Cents): string {
   const sign = cents < 0 ? '-' : '';
   const abs = Math.abs(cents);
+  if (abs >= 100_000_000) return `${sign}$${(abs / 100_000_000).toFixed(1)}M`;
   if (abs >= 100_000) return `${sign}$${(abs / 100_000).toFixed(1)}k`;
   return `${sign}$${Math.round(abs / 100)}`;
 }

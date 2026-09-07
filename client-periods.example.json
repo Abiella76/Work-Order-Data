@@ -1,0 +1,29 @@
+[
+  {
+    "key": "FY2024",
+    "label": "FY2024",
+    "startsOn": "2024-01-01",
+    "endsOn": "2024-12-31",
+    "isPartial": false,
+    "sourceTotal": "0.00",
+    "sortOrder": 1
+  },
+  {
+    "key": "FY2025",
+    "label": "FY2025",
+    "startsOn": "2025-01-01",
+    "endsOn": "2025-12-31",
+    "isPartial": false,
+    "sourceTotal": "0.00",
+    "sortOrder": 2
+  },
+  {
+    "key": "STATEMENT_2025_2026",
+    "label": "Nov 2025 - Sep 2026",
+    "startsOn": "2025-11-01",
+    "endsOn": "2026-09-03",
+    "isPartial": true,
+    "sourceTotal": "0.00",
+    "sortOrder": 3
+  }
+]

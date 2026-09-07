@@ -23,3 +23,10 @@ npm-debug.log*
 /tests/fixtures-real/*.csv
 /reports/
 /tests/fixtures-real/expected.json
+
+# The finance report's client revenue: real customer names and dollar values.
+# The seed script reads it from the repo root by default; it must never be
+# committed while this repository is public.
+/client-revenue.csv
+/client-revenue*.csv
+/client-periods.json

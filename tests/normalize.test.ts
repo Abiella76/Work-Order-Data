@@ -229,3 +229,16 @@ describe('multi-value cells — name continuations', () => {
     ]);
   });
 });
+
+describe('compact money at company scale', () => {
+  it('uses a millions tier so company totals stay readable', () => {
+    expect(formatMoneyCompact(312500000)).toBe('$3.1M');
+    expect(formatMoneyCompact(-82250000)).toBe('-$822.5k');
+    expect(formatMoneyCompact(525000000)).toBe('$5.3M');
+  });
+
+  it('keeps the thousands and exact tiers unchanged', () => {
+    expect(formatMoneyCompact(729953)).toBe('$7.3k');
+    expect(formatMoneyCompact(58800)).toBe('$588');
+  });
+});

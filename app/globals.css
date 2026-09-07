@@ -905,3 +905,153 @@ h4 {
     text-align: left;
   }
 }
+
+/* ── corporate snapshot ───────────────────────────────────────────────── */
+
+.section-head {
+  padding: 18px 0 14px;
+}
+
+.section-title {
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+.section-sub {
+  font-size: 11px;
+  color: var(--color-neutral-400);
+  margin-top: 3px;
+}
+
+.period-plot {
+  display: flex;
+  align-items: flex-end;
+  gap: 22px;
+  height: 190px;
+  margin-top: 16px;
+  padding: 0 8px;
+  border-bottom: 1px solid var(--color-divider);
+}
+
+.period-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  height: 100%;
+}
+
+.period-value {
+  font-size: 12px;
+  color: var(--color-warm-300);
+  margin-bottom: 6px;
+  font-variant-numeric: tabular-nums;
+}
+
+.period-stack {
+  width: 100%;
+  max-width: 84px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.period-bar {
+  background: linear-gradient(180deg, var(--color-warm-400), var(--color-warm-700));
+  border-radius: 3px 3px 0 0;
+}
+
+/* A negative net is a real outcome in this source — credits can exceed billings
+   in a period. It reads as a hatched bar rather than a colour change, so it
+   stays legible without introducing a red/green status meaning. */
+.period-bar-negative {
+  background: repeating-linear-gradient(
+    135deg,
+    var(--color-warm-800) 0 5px,
+    var(--color-neutral-900) 5px 10px
+  );
+  border-radius: 0 0 3px 3px;
+}
+
+/* The annualised projection sits above the billed bar as an open outline: it is
+   an estimate, and must not be mistaken for money that has been invoiced. */
+.period-ghost {
+  border: 1px dashed var(--color-warm-600);
+  border-bottom: none;
+  border-radius: 3px 3px 0 0;
+  position: relative;
+}
+
+.period-ghost-label {
+  position: absolute;
+  top: -17px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 10px;
+  color: var(--color-warm-600);
+  white-space: nowrap;
+}
+
+.conc-value {
+  font-size: 34px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  color: var(--color-warm-300);
+  margin-top: 16px;
+}
+
+.conc-caption {
+  font-size: 11px;
+  color: var(--color-neutral-400);
+  margin-top: 6px;
+}
+
+.conc-track {
+  display: flex;
+  height: 8px;
+  margin-top: 12px;
+  border-radius: 4px;
+  overflow: hidden;
+  background: var(--color-neutral-900);
+}
+
+.conc-fill {
+  background: linear-gradient(90deg, var(--color-warm-400), var(--color-warm-600));
+}
+
+.conc-rest {
+  background: var(--color-accent-800);
+}
+
+.mix-fill-warm {
+  background: var(--color-warm-500);
+}
+
+.cell-warm {
+  color: var(--color-warm-300);
+}
+
+.chip {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 1px 7px;
+  border-radius: 10px;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  vertical-align: middle;
+}
+
+.chip-warm {
+  background: var(--color-warm-900);
+  color: var(--color-warm-300);
+  border: 1px solid var(--color-warm-800);
+}
+
+@media (max-width: 1100px) {
+  .period-plot {
+    gap: 12px;
+  }
+}
