@@ -14,6 +14,7 @@ import { buildInsights } from '@/lib/kpi/insights';
 import { loadDays, loadOpeningBacklog } from '@/lib/queries';
 import { isDatabaseConfigured } from '@/db/client';
 import { describeDbError } from '@/lib/db-error';
+import { collectDbDiagnostics } from '@/lib/db-diagnostics';
 import { DbError } from '@/components/DbError';
 
 export const dynamic = 'force-dynamic';
@@ -63,7 +64,7 @@ export default async function DashboardPage({
       <main className="page">
         <div className="page-inner">
           <Masthead view="dashboard" />
-          <DbError info={describeDbError(error)} />
+          <DbError info={describeDbError(error)} diagnostics={await collectDbDiagnostics()} />
         </div>
       </main>
     );

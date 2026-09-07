@@ -3,6 +3,7 @@ import { ImportPanel } from '@/components/ImportPanel';
 import { loadImportLog } from '@/lib/queries';
 import { isDatabaseConfigured } from '@/db/client';
 import { describeDbError } from '@/lib/db-error';
+import { collectDbDiagnostics } from '@/lib/db-diagnostics';
 import { DbError } from '@/components/DbError';
 
 export const dynamic = 'force-dynamic';
@@ -40,7 +41,7 @@ export default async function ImportsPage() {
       <main className="page">
         <div className="page-inner">
           <Masthead view="imports" />
-          <DbError info={describeDbError(error)} />
+          <DbError info={describeDbError(error)} diagnostics={await collectDbDiagnostics()} />
         </div>
       </main>
     );
