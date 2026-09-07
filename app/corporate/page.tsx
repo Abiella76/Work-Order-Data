@@ -19,6 +19,7 @@ import { isDatabaseConfigured } from '@/db/client';
 import { describeDbError } from '@/lib/db-error';
 import { collectDbDiagnostics } from '@/lib/db-diagnostics';
 import { DbError } from '@/components/DbError';
+import { ClientRevenueImport } from '@/components/ClientRevenueImport';
 
 export const dynamic = 'force-dynamic';
 
@@ -62,13 +63,7 @@ export default async function CorporatePage() {
       <main className="page">
         <div className="page-inner">
           <Masthead view="corporate" />
-          <div className="empty">
-            <div className="empty-title">No client revenue imported yet</div>
-            <p>
-              Run <code>npm run seed:clients -- ./client-revenue.csv</code> to load the finance
-              report.
-            </p>
-          </div>
+          <ClientRevenueImport />
         </div>
       </main>
     );
