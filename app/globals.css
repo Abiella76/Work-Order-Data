@@ -39,6 +39,29 @@
   --color-accent2-800: #423e5d;
   --color-accent2-900: #2b293a;
 
+  /* Warm ramp — the second categorical hue for charts.
+     Nocturne is a single-accent system, which left every second series grey and
+     the charts reading flat. This adds one warm hue and no more: two categories
+     is what these charts ever show at once.
+
+     The 500 step is the one that carries identity, chosen so the violet/amber
+     pair clears the colour checks against the #161826 ground — CVD ΔE 24.7,
+     normal-vision ΔE 24.6, both above the ≥8 target and the ≥15 floor. A third
+     warm hue is deliberately absent: a yellow sits ΔE 6.7 from this amber and is
+     indistinguishable even with full colour vision, so the lighter steps below
+     are gradient and label steps of THIS hue, never a separate series.
+
+     This stays a categorical hue. It does not encode good/bad — the system's
+     no-red/green rule still holds. */
+  --color-warm-200: #f7dcac;
+  --color-warm-300: #f2c879;
+  --color-warm-400: #e0a94f;
+  --color-warm-500: #c2872f;
+  --color-warm-600: #a06f26;
+  --color-warm-700: #7d561f;
+  --color-warm-800: #5a3d17;
+  --color-warm-900: #3a2810;
+
   --color-neutral-100: #f3f5fe;
   --color-neutral-200: #e4e7f5;
   --color-neutral-300: #cfd3e5;
@@ -327,6 +350,10 @@ h4 {
   color: var(--color-accent-300);
 }
 
+.kpi-value-warm {
+  color: var(--color-warm-300);
+}
+
 .kpi-sub {
   font-size: 11px;
   color: var(--color-neutral-400);
@@ -440,7 +467,7 @@ h4 {
 }
 
 .flow-bar-invoiced {
-  background: linear-gradient(180deg, var(--color-neutral-600), var(--color-neutral-800));
+  background: linear-gradient(180deg, var(--color-warm-400), var(--color-warm-700));
 }
 
 .flow-bar-label {
@@ -537,19 +564,23 @@ h4 {
 }
 
 .bars-profit {
-  background: linear-gradient(180deg, var(--color-accent-500), var(--color-accent-700));
+  background: linear-gradient(180deg, var(--color-warm-400), var(--color-warm-700));
   border-radius: 3px 3px 0 0;
 }
 
+/* The stacked revenue bar splits ONE measure into recorded profit and the rest,
+   so the two segments are steps of a single hue, light to dark — a sequential
+   encoding — not two categories. A grey remainder read as a third series and
+   left the chart looking half-unpainted. */
 .bars-rest {
-  background: var(--color-neutral-800);
-  border-top: 1px solid var(--color-neutral-700);
+  background: var(--color-warm-800);
+  border-top: 1px solid var(--color-warm-600);
 }
 
 .bars-auth {
   width: 100%;
   max-width: 46px;
-  background: linear-gradient(180deg, var(--color-accent2-600), var(--color-accent2-800));
+  background: linear-gradient(180deg, var(--color-warm-500), var(--color-warm-800));
   border-radius: 3px 3px 0 0;
 }
 

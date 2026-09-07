@@ -7,6 +7,8 @@ interface Kpi {
   sub: string;
   /** The accent tint marks the two cards that signal rather than report. */
   accent?: boolean;
+  /** Warm tint, tying a card to the warm series in the charts below it. */
+  warm?: boolean;
 }
 
 /**
@@ -74,10 +76,11 @@ export function KpiGrid({ view }: { view: PeriodView }) {
       sub: 'where margin populated',
     },
     {
+      // Warm, matching the gross-profit segment in the revenue chart below.
       label: 'Gross margin',
       value: formatPct(m.grossMarginPct),
       sub: `weighted on ${formatMoney(m.marginBase)}`,
-      accent: true,
+      warm: true,
     },
     {
       label: 'Authorization remaining',
@@ -91,7 +94,11 @@ export function KpiGrid({ view }: { view: PeriodView }) {
       {kpis.map((kpi) => (
         <div className="kpi" key={kpi.label}>
           <div className="kpi-label">{kpi.label}</div>
-          <div className={`kpi-value${kpi.accent ? ' kpi-value-accent' : ''}`}>{kpi.value}</div>
+          <div
+            className={`kpi-value${kpi.accent ? ' kpi-value-accent' : ''}${kpi.warm ? ' kpi-value-warm' : ''}`}
+          >
+            {kpi.value}
+          </div>
           <div className="kpi-sub">{kpi.sub}</div>
         </div>
       ))}

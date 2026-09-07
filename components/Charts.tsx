@@ -31,7 +31,7 @@ export function FlowChart({ days }: { days: DayData[] }) {
             Received
           </span>
           <span className="legend-item">
-            <span className="legend-swatch" style={{ background: 'var(--color-neutral-600)' }} />
+            <span className="legend-swatch" style={{ background: 'var(--color-warm-500)' }} />
             Invoiced
           </span>
         </div>
@@ -56,7 +56,7 @@ export function FlowChart({ days }: { days: DayData[] }) {
                 className="flow-bar flow-bar-invoiced"
                 style={{ height: barHeight(day.metrics.invoicedCount) }}
               >
-                <span className="flow-bar-label" style={{ color: 'var(--color-neutral-400)' }}>
+                <span className="flow-bar-label" style={{ color: 'var(--color-warm-300)' }}>
                   {day.metrics.invoicedCount}
                 </span>
               </div>
@@ -184,7 +184,7 @@ export function RevenueChart({ days }: { days: DayData[] }) {
   return (
     <section className="card">
       <h2 className="card-title">Invoiced revenue &amp; gross profit</h2>
-      <div className="card-sub">Accent segment is recorded gross profit</div>
+      <div className="card-sub">Amber segment is recorded gross profit</div>
 
       <div className="bars-plot">
         {days.map((day) => {
