@@ -39,11 +39,17 @@ export function describeDbError(error: unknown): DbErrorInfo {
 
   const missing = raw.match(MISSING_TABLE);
   if (missing) {
+    const table = missing[1];
+    // Naming one migration file was wrong once the schema grew past it: a
+    // database missing only the newest tables was told to re-run the first
+    // migration, which it had already applied. Name the missing table instead
+    // and point at the whole directory, so the message stays correct as more
+    // migrations are added.
     return {
-      title: 'The database has no tables yet',
+      title: `The database is missing the "${table}" table`,
       steps: [
         'Open your database provider\'s SQL editor (in Neon: Postgres database → SQL Editor).',
-        'Paste in the whole of db/migrations/0000_misty_xavin.sql from this repository and run it.',
+        'Run the migrations in db/migrations/ that have not been applied yet, in filename order — each file is plain SQL you can paste and run.',
         'Reload this page — no redeploy needed, since only the database changed.',
       ],
       detail,

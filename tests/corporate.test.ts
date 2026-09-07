@@ -16,6 +16,7 @@ import { parseClientRevenueCsv } from '../lib/import/client-revenue';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { dollars } from './helpers';
+import { describeDbError } from '../lib/db-error';
 
 /**
  * Corporate snapshot maths, over a synthetic client set shaped like the real
@@ -312,5 +313,16 @@ describe('client revenue CSV parsing', () => {
     );
     expect(parsed.rows).toHaveLength(0);
     expect(parsed.issues[0]).toContain('unrecognised status');
+  });
+});
+
+describe('missing-table diagnosis', () => {
+  it('names the table that is actually missing, not a fixed migration file', () => {
+    const info = describeDbError(new Error('relation "revenue_periods" does not exist'));
+    expect(info.title).toContain('revenue_periods');
+    // The old message hardcoded the first migration, which sends someone with a
+    // partially-migrated database to re-run something they already applied.
+    expect(info.steps.join(' ')).not.toContain('0000_');
+    expect(info.steps.join(' ')).toContain('have not been applied yet');
   });
 });
