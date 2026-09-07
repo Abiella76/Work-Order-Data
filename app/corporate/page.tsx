@@ -20,6 +20,7 @@ import { describeDbError } from '@/lib/db-error';
 import { collectDbDiagnostics } from '@/lib/db-diagnostics';
 import { DbError } from '@/components/DbError';
 import { ClientRevenueImport } from '@/components/ClientRevenueImport';
+import { ReplaceReport } from '@/components/ReplaceReport';
 
 export const dynamic = 'force-dynamic';
 
@@ -80,10 +81,15 @@ export default async function CorporatePage() {
         <Masthead view="corporate" />
 
         <div className="section-head">
-          <h2 className="section-title">Corporate snapshot</h2>
-          <div className="section-sub">
-            {split.total} classified accounts across {periods.length} reporting periods ·{' '}
-            {periods[0].label} to {periods[periods.length - 1].label}
+          <div className="section-head-row">
+            <div>
+              <h2 className="section-title">Corporate snapshot</h2>
+              <div className="section-sub">
+                {split.total} classified accounts across {periods.length} reporting periods ·{' '}
+                {periods[0].label} to {periods[periods.length - 1].label}
+              </div>
+            </div>
+            <ReplaceReport />
           </div>
         </div>
 

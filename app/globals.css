@@ -1098,3 +1098,26 @@ h4 {
   color: var(--color-accent-200);
   border-color: var(--color-accent-800);
 }
+
+.section-head-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.replace-panel {
+  border: 1px solid var(--color-warm-800);
+  border-radius: var(--radius-card);
+  background: rgba(90, 61, 23, 0.12);
+  padding: 14px 16px 16px;
+  margin-top: 12px;
+  width: 100%;
+}
+
+.replace-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+}
