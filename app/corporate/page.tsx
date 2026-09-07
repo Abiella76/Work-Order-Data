@@ -83,7 +83,7 @@ export default async function CorporatePage() {
         <div className="section-head">
           <div className="section-head-row">
             <div>
-              <h2 className="section-title">Corporate snapshot</h2>
+              <h2 className="section-title">Customers</h2>
               <div className="section-sub">
                 {split.total} classified accounts across {periods.length} reporting periods ·{' '}
                 {periods[0].label} to {periods[periods.length - 1].label}

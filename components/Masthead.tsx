@@ -17,7 +17,7 @@ export function Masthead({ view }: { view: 'dashboard' | 'imports' | 'corporate'
           href="/corporate"
           className={`btn ${view === 'corporate' ? 'btn-active' : 'btn-ghost'}`}
         >
-          Corporate snapshot
+          Customers
         </Link>
         <Link href="/imports" className={`btn ${view === 'imports' ? 'btn-active' : 'btn-ghost'}`}>
           Import log
