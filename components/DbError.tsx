@@ -1,5 +1,6 @@
 import type { DbErrorInfo } from '@/lib/db-error';
 import type { DbDiagnostics } from '@/lib/db-diagnostics';
+import { SetupButton } from './SetupButton';
 
 /**
  * Shown in place of a page when the database is configured but failing.
@@ -69,9 +70,11 @@ export function DbError({
           )}
 
           <p style={{ marginTop: 12, fontSize: 11, color: 'var(--color-neutral-500)' }}>
-            If this host and database are not the ones you ran the SQL against, the migration went
-            to a different database — fix <code>DATABASE_URL</code> rather than running more SQL.
+            The button below applies the schema through this same connection, so it cannot land in
+            a different database. It only adds missing tables — nothing is dropped or overwritten.
           </p>
+
+          {present !== null && <SetupButton />}
         </div>
       )}
     </div>

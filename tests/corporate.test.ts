@@ -17,6 +17,8 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { dollars } from './helpers';
 import { describeDbError } from '../lib/db-error';
+import { SETUP_STATEMENTS } from '../lib/setup-sql';
+import * as schema from '../db/schema';
 
 /**
  * Corporate snapshot maths, over a synthetic client set shaped like the real
@@ -324,5 +326,35 @@ describe('missing-table diagnosis', () => {
     // partially-migrated database to re-run something they already applied.
     expect(info.steps.join(' ')).not.toContain('0000_');
     expect(info.steps.join(' ')).toContain('have not been applied yet');
+  });
+});
+
+describe('setup DDL', () => {
+  it('covers every table declared in the schema', () => {
+    // Generated from db/migrations/; this guards against it drifting when a
+    // migration is added and the generator is not re-run.
+    const declared = Object.values(schema as Record<string, unknown>)
+      .filter((t) => typeof t === 'object' && t !== null)
+      .map((t) => (t as Record<symbol, unknown>)[Symbol.for('drizzle:Name')])
+      .filter((name): name is string => typeof name === 'string');
+
+    expect(declared.length).toBeGreaterThan(0);
+    const ddl = SETUP_STATEMENTS.join('\n');
+    for (const table of declared) {
+      expect(ddl, `no CREATE TABLE for "${table}"`).toContain(`CREATE TABLE IF NOT EXISTS "${table}"`);
+    }
+  });
+
+  it('is additive only — nothing destructive', () => {
+    for (const statement of SETUP_STATEMENTS) {
+      expect(statement).not.toMatch(/\b(DROP|TRUNCATE|DELETE\s+FROM)\b/i);
+    }
+  });
+
+  it('guards every constraint addition against being run twice', () => {
+    for (const statement of SETUP_STATEMENTS) {
+      if (/^\s*DO \$\$/.test(statement)) expect(statement).toContain('duplicate_object');
+      else expect(statement).not.toMatch(/^ALTER TABLE/i);
+    }
   });
 });
