@@ -62,6 +62,25 @@
   --color-warm-800: #5a3d17;
   --color-warm-900: #3a2810;
 
+  /* Green ramp — the "invoiced" series on the flow chart.
+
+     Its 700 step IS --cat-4, the pie chart's green, so the same hue carries the
+     same idea in both places; the lighter steps are the gradient top, the legend
+     swatch and the bar label, stepped up the same OKLCH hue (154.7°) at the
+     warm ramp's lightness values so neither series sits heavier than the other.
+
+     Against the violet on the #232532 card: CVD ΔE 15.1 at the bar bottoms,
+     19.4 at the tops, 16.4 between the legend swatches — all above the ≥8
+     target. Contrast at the bar bottom is 2.83:1, under 3:1 and so dependent on
+     the count printed above every bar; that label is the relief and must stay.
+
+     Only the four steps in use are defined. A green here is a category, not a
+     verdict — nothing in this system may read green for "good". */
+  --color-green-300: #87e7aa;
+  --color-green-400: #6bcc8f;
+  --color-green-500: #49ab71;
+  --color-green-700: #007b44;
+
   --color-neutral-100: #f3f5fe;
   --color-neutral-200: #e4e7f5;
   --color-neutral-300: #cfd3e5;
@@ -469,7 +488,7 @@ h4 {
 }
 
 .flow-bar-invoiced {
-  background: linear-gradient(180deg, var(--color-warm-400), var(--color-warm-700));
+  background: linear-gradient(180deg, var(--color-green-400), var(--color-green-700));
 }
 
 .flow-bar-label {
