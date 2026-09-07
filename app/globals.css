@@ -1121,3 +1121,88 @@ h4 {
   justify-content: space-between;
   gap: 18px;
 }
+
+/* ── categorical palette for the concentration pie ────────────────────── */
+
+/* Blue, red, orange, green, magenta — searched in OKLCH rather than picked by
+   eye, because equal-lightness red and green are the pair colour-vision
+   deficiency collapses. This set clears the validator on the #232532 card at
+   normal-vision ΔE 15.2 and CVD ΔE 7.8.
+   
+   7.8 sits in the band that is only permissible alongside a second, non-colour
+   encoding, which is why the pie carries direct labels, a legend and a visible
+   gap between slices: identity never rests on hue alone. */
+:root {
+  --cat-1: #2784d5;
+  --cat-2: #c03f23;
+  --cat-3: #c08100;
+  --cat-4: #007b44;
+  --cat-5: #b5479a;
+  /* The remainder is not a category — it stays neutral. */
+  --cat-rest: #4a4d58;
+}
+
+.pie-wrap {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+
+.pie-svg {
+  width: 168px;
+  height: 168px;
+  flex: none;
+}
+
+.pie-centre-value {
+  font-size: 21px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  fill: var(--color-text);
+}
+
+.pie-centre-label {
+  font-size: 8px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  fill: var(--color-neutral-500);
+}
+
+.pie-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  flex: 1;
+  min-width: 210px;
+}
+
+.pie-legend-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 11px;
+}
+
+.pie-swatch {
+  width: 9px;
+  height: 9px;
+  border-radius: 2px;
+  flex: none;
+  transform: translateY(1px);
+}
+
+.pie-name {
+  color: var(--color-neutral-300);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.pie-figure {
+  color: var(--color-neutral-400);
+  flex: none;
+  font-variant-numeric: tabular-nums;
+}

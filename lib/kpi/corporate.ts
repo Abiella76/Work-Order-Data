@@ -318,3 +318,69 @@ export function corporateInsights(input: {
 
   return out;
 }
+
+/** One slice of the concentration pie. */
+export interface PieSlice {
+  name: string;
+  amount: Cents;
+  share: number;
+  /** Cumulative share before this slice, 0..1 — the slice's start angle. */
+  offset: number;
+  /** Index into the categorical palette; -1 marks the neutral remainder. */
+  colorIndex: number;
+}
+
+/**
+ * Top accounts as pie slices, with everything else gathered into one remainder.
+ *
+ * Capped at five named slices because the categorical palette has five hues
+ * that are measurably distinguishable on this surface. A sixth would have to
+ * repeat a hue or invent one that fails the colour checks, and a pie with
+ * twenty near-identical wedges answers no question at all.
+ *
+ * Negative amounts are excluded rather than drawn: a pie shows parts of a
+ * whole, and a negative part has no angle. Credits are reported in their own
+ * panel, where they can be read as what they are.
+ */
+export function concentrationSlices(
+  summaries: readonly ClientSummary[],
+  topN = 5,
+): { slices: PieSlice[]; total: Cents; othersCount: number } {
+  const withRevenue = summaries
+    .filter((c) => c.current != null && c.current > 0)
+    .sort((a, b) => (b.current ?? 0) - (a.current ?? 0));
+
+  const total = withRevenue.reduce((n, c) => n + (c.current ?? 0), 0);
+  if (total <= 0) return { slices: [], total: 0, othersCount: 0 };
+
+  const top = withRevenue.slice(0, topN);
+  const rest = withRevenue.slice(topN);
+  const restAmount = rest.reduce((n, c) => n + (c.current ?? 0), 0);
+
+  const slices: PieSlice[] = [];
+  let offset = 0;
+
+  top.forEach((client, i) => {
+    const share = (client.current ?? 0) / total;
+    slices.push({
+      name: client.name,
+      amount: client.current ?? 0,
+      share,
+      offset,
+      colorIndex: i,
+    });
+    offset += share;
+  });
+
+  if (restAmount > 0) {
+    slices.push({
+      name: `${rest.length} other account${rest.length === 1 ? '' : 's'}`,
+      amount: restAmount,
+      share: restAmount / total,
+      offset,
+      colorIndex: -1,
+    });
+  }
+
+  return { slices, total, othersCount: rest.length };
+}

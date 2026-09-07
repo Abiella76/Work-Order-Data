@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   annualisedRunRate,
   concentration,
+  concentrationSlices,
   corporateInsights,
   duplicateCandidates,
   periodMonths,
@@ -356,5 +357,68 @@ describe('setup DDL', () => {
       if (/^\s*DO \$\$/.test(statement)) expect(statement).toContain('duplicate_object');
       else expect(statement).not.toMatch(/^ALTER TABLE/i);
     }
+  });
+});
+
+describe('concentration pie slices', () => {
+  const { slices, total, othersCount } = concentrationSlices(summaries, 2);
+
+  it('gathers everything past the top N into one remainder', () => {
+    expect(slices.map((s) => s.name)).toEqual([
+      'Northwind Facilities',
+      'Cascade Retail Group',
+      '1 other account',
+    ]);
+    expect(othersCount).toBe(1);
+  });
+
+  it('shares sum to one and offsets run consecutively', () => {
+    expect(slices.reduce((n, s) => n + s.share, 0)).toBeCloseTo(1, 10);
+    let running = 0;
+    for (const slice of slices) {
+      expect(slice.offset).toBeCloseTo(running, 10);
+      running += slice.share;
+    }
+  });
+
+  it('assigns palette slots in rank order and leaves the remainder neutral', () => {
+    expect(slices.map((s) => s.colorIndex)).toEqual([0, 1, -1]);
+  });
+
+  it('totals only the accounts with current-period revenue', () => {
+    expect(formatMoney(total)).toBe('$1,000,000.00');
+  });
+
+  it('never allocates more than five coloured slices', () => {
+    const many = Array.from({ length: 12 }, (_, i) => ({
+      name: `Account ${i}`,
+      status: 'active' as const,
+      revenue: { STATEMENT: dollars(1000 - i) },
+    }));
+    const result = concentrationSlices(summariseClients(many, PERIODS));
+    expect(result.slices.filter((s) => s.colorIndex >= 0)).toHaveLength(5);
+    expect(result.slices.at(-1)?.colorIndex).toBe(-1);
+    expect(Math.max(...result.slices.map((s) => s.colorIndex))).toBeLessThan(5);
+  });
+
+  it('excludes negative amounts, which have no angle in a part-to-whole', () => {
+    const withCredit = summariseClients(
+      [
+        { name: 'Positive', status: 'active', revenue: { STATEMENT: dollars(100) } },
+        { name: 'Credit', status: 'active', revenue: { STATEMENT: dollars(-500) } },
+      ],
+      PERIODS,
+    );
+    const result = concentrationSlices(withCredit);
+    expect(result.slices.map((s) => s.name)).toEqual(['Positive']);
+    expect(result.slices[0].share).toBeCloseTo(1, 10);
+  });
+
+  it('returns nothing rather than NaN when no account has revenue', () => {
+    const result = concentrationSlices(
+      summariseClients([{ name: 'X', status: 'inactive', revenue: { FY2024: 100 } }], PERIODS),
+    );
+    expect(result.slices).toEqual([]);
+    expect(result.total).toBe(0);
   });
 });

@@ -2,6 +2,7 @@ import { formatMoney, formatMoneyCompact } from '@/lib/kpi/money';
 import {
   annualisedRunRate,
   concentration,
+  concentrationSlices,
   duplicateCandidates,
   periodMonths,
   type ClientSummary,
@@ -169,51 +170,88 @@ export function CreditsPanel({ totals }: { totals: PeriodTotals[] }) {
   );
 }
 
-/** Share of the current period resting on the largest accounts. */
+/**
+ * Share of the current period resting on the largest accounts.
+ *
+ * A donut rather than a bar: this is a part-to-whole question with six slices,
+ * which is what a pie is actually good at, and the hole gives the headline
+ * number somewhere to live.
+ *
+ * Identity never rests on colour alone — every slice is named in the legend
+ * with its own figure, and the slices are separated by a visible gap. The
+ * palette's worst pair sits at CVD ΔE 7.8, which is only defensible with that
+ * second encoding present.
+ */
 export function ConcentrationPanel({ summaries }: { summaries: ClientSummary[] }) {
   const top = concentration(summaries, 5);
-  const rest = 1 - top.share;
+  const { slices } = concentrationSlices(summaries, 5);
+
+  // Donut geometry: one dasharray arc per slice on a shared circle, which needs
+  // no path maths and no charting library.
+  const RADIUS = 56;
+  const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
+  const GAP = 2; // px of surface between slices, so adjacent hues never touch
+
+  const colorFor = (index: number) =>
+    index < 0 ? 'var(--cat-rest)' : `var(--cat-${index + 1})`;
 
   return (
     <section className="card">
       <h2 className="card-title">Revenue concentration</h2>
-      <div className="card-sub">Current period, largest accounts first</div>
+      <div className="card-sub">Share of current-period revenue by account</div>
 
-      <div className="conc-value">{Math.round(top.share * 100)}%</div>
-      <div className="conc-caption">
-        of current revenue sits with {top.topN} account{top.topN === 1 ? '' : 's'} —{' '}
-        {formatMoney(top.amount)}
-      </div>
+      {slices.length === 0 ? (
+        <div className="card-sub" style={{ marginTop: 14 }}>
+          No account has revenue in the current period.
+        </div>
+      ) : (
+        <div className="pie-wrap">
+          <svg className="pie-svg" viewBox="0 0 140 140" role="img"
+               aria-label={`Revenue concentration: ${slices.map((s) => `${s.name} ${Math.round(s.share * 100)}%`).join(', ')}`}>
+            <g transform="rotate(-90 70 70)">
+              {slices.map((slice) => {
+                const length = Math.max(slice.share * CIRCUMFERENCE - GAP, 0.5);
+                return (
+                  <circle
+                    key={slice.name}
+                    cx="70"
+                    cy="70"
+                    r={RADIUS}
+                    fill="none"
+                    stroke={colorFor(slice.colorIndex)}
+                    strokeWidth="22"
+                    strokeDasharray={`${length} ${CIRCUMFERENCE - length}`}
+                    strokeDashoffset={-slice.offset * CIRCUMFERENCE}
+                  />
+                );
+              })}
+            </g>
+            <text x="70" y="68" textAnchor="middle" className="pie-centre-value">
+              {Math.round(top.share * 100)}%
+            </text>
+            <text x="70" y="82" textAnchor="middle" className="pie-centre-label">
+              top 5
+            </text>
+          </svg>
 
-      <div className="conc-track">
-        <div className="conc-fill" style={{ width: `${(top.share * 100).toFixed(1)}%` }} />
-        <div className="conc-rest" style={{ width: `${(rest * 100).toFixed(1)}%` }} />
-      </div>
-
-      <div className="mix" style={{ marginTop: 14 }}>
-        {top.names.map((name, i) => {
-          const client = summaries.find((c) => c.name === name)!;
-          return (
-            <div className="mix-row" key={name}>
-              <div className="mix-head">
-                <span className="mix-name" title={name}>
-                  {i + 1}. {name}
-                </span>
-                <span className="mix-value">
-                  {formatMoneyCompact(client.current ?? 0)} ·{' '}
-                  {Math.round((client.currentShare ?? 0) * 100)}%
-                </span>
-              </div>
-              <div className="mix-track">
-                <div
-                  className="mix-fill mix-fill-warm"
-                  style={{ width: `${Math.max((client.currentShare ?? 0) * 100, 0.8).toFixed(1)}%` }}
+          <div className="pie-legend">
+            {slices.map((slice) => (
+              <div className="pie-legend-row" key={slice.name}>
+                <span
+                  className="pie-swatch"
+                  style={{ background: colorFor(slice.colorIndex) }}
                 />
+                <span className="pie-name" title={slice.name}>
+                  {slice.name}
+                </span>
+                <span className="pie-figure">
+                  {formatMoneyCompact(slice.amount)} · {Math.round(slice.share * 100)}%
+                </span>
               </div>
-            </div>
-          );
-        })}
-      </div>
+            ))}
+          </div>
+        </div>
+      )}
     </section>
   );
 }
