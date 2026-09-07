@@ -11,7 +11,7 @@ export function Masthead({ view }: { view: 'dashboard' | 'imports' | 'corporate'
       </div>
       <nav className="masthead-nav">
         <Link href="/" className={`btn ${view === 'dashboard' ? 'btn-active' : 'btn-ghost'}`}>
-          Dashboard
+          Work Orders
         </Link>
         <Link
           href="/corporate"
