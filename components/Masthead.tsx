@@ -6,7 +6,7 @@ export function Masthead({ view }: { view: 'dashboard' | 'imports' | 'corporate'
   return (
     <header className="masthead">
       <div className="masthead-left">
-        <h1 className="masthead-title">Work Order Operations</h1>
+        <h1 className="masthead-title">POD PERFORMANCE ANALYTICS</h1>
         <div className="masthead-rule" />
         <div className="masthead-org">Noontide Service Corporation USA Inc.</div>
       </div>

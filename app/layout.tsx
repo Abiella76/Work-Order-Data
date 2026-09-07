@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Work Order Operations',
+  title: 'Pod Performance Analytics',
   description: 'Daily work-order operations and financial KPIs for Noontide Service Corporation USA Inc.',
 };
 

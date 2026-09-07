@@ -158,10 +158,12 @@ h4 {
   flex-wrap: wrap;
 }
 
+/* Set in caps, so the tracking opens rather than tightens — negative letter-
+   spacing is for mixed case and closes up capitals until they read as a block. */
 .masthead-title {
   font-size: 17px;
   font-weight: 500;
-  letter-spacing: -0.01em;
+  letter-spacing: 0.03em;
 }
 
 .masthead-rule {
