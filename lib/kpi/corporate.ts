@@ -177,18 +177,64 @@ export interface Concentration {
   names: string[];
 }
 
-export function concentration(summaries: readonly ClientSummary[], topN = 5): Concentration {
-  const withCurrent = summaries
-    .filter((c) => c.current != null && c.current > 0)
-    .sort((a, b) => (b.current ?? 0) - (a.current ?? 0));
-  const total = withCurrent.reduce((n, c) => n + (c.current ?? 0), 0);
-  const top = withCurrent.slice(0, topN);
-  const amount = top.reduce((n, c) => n + (c.current ?? 0), 0);
+/**
+ * Which revenue a concentration figure is measured over.
+ *
+ * The answer moves a great deal with the window, so the window is always
+ * stated rather than assumed: a book that looks concentrated this year can look
+ * diversified across three, because the accounts carrying it changed. `current`
+ * exists so a caller that only wants "the latest period" need not know which
+ * period that is.
+ */
+export type ConcentrationScope =
+  | { kind: 'current' }
+  | { kind: 'all' }
+  | { kind: 'period'; key: string };
+
+export const CURRENT_SCOPE: ConcentrationScope = { kind: 'current' };
+
+/** The figure a scope sizes an account by, or null where it has no activity. */
+function scopeAmount(client: ClientSummary, scope: ConcentrationScope): Cents | null {
+  switch (scope.kind) {
+    case 'current':
+      return client.current;
+    case 'all':
+      return client.lifetime;
+    case 'period':
+      return client.revenue[scope.key] ?? null;
+  }
+}
+
+/**
+ * Accounts with positive revenue in the scope, largest first.
+ *
+ * Non-positive accounts are dropped rather than ranked: a share of a whole is
+ * what both callers are computing, and a credit has no share of one.
+ */
+function rankedByScope(
+  summaries: readonly ClientSummary[],
+  scope: ConcentrationScope,
+): { client: ClientSummary; amount: Cents }[] {
+  return summaries
+    .map((client) => ({ client, amount: scopeAmount(client, scope) }))
+    .filter((row): row is { client: ClientSummary; amount: Cents } => row.amount != null && row.amount > 0)
+    .sort((a, b) => b.amount - a.amount);
+}
+
+export function concentration(
+  summaries: readonly ClientSummary[],
+  topN = 5,
+  scope: ConcentrationScope = CURRENT_SCOPE,
+): Concentration {
+  const ranked = rankedByScope(summaries, scope);
+  const total = ranked.reduce((n, r) => n + r.amount, 0);
+  const top = ranked.slice(0, topN);
+  const amount = top.reduce((n, r) => n + r.amount, 0);
   return {
     topN,
     share: total > 0 ? amount / total : 0,
     amount,
-    names: top.map((c) => c.name),
+    names: top.map((r) => r.client.name),
   };
 }
 
@@ -345,26 +391,25 @@ export interface PieSlice {
 export function concentrationSlices(
   summaries: readonly ClientSummary[],
   topN = 5,
+  scope: ConcentrationScope = CURRENT_SCOPE,
 ): { slices: PieSlice[]; total: Cents; othersCount: number } {
-  const withRevenue = summaries
-    .filter((c) => c.current != null && c.current > 0)
-    .sort((a, b) => (b.current ?? 0) - (a.current ?? 0));
+  const ranked = rankedByScope(summaries, scope);
 
-  const total = withRevenue.reduce((n, c) => n + (c.current ?? 0), 0);
+  const total = ranked.reduce((n, r) => n + r.amount, 0);
   if (total <= 0) return { slices: [], total: 0, othersCount: 0 };
 
-  const top = withRevenue.slice(0, topN);
-  const rest = withRevenue.slice(topN);
-  const restAmount = rest.reduce((n, c) => n + (c.current ?? 0), 0);
+  const top = ranked.slice(0, topN);
+  const rest = ranked.slice(topN);
+  const restAmount = rest.reduce((n, r) => n + r.amount, 0);
 
   const slices: PieSlice[] = [];
   let offset = 0;
 
-  top.forEach((client, i) => {
-    const share = (client.current ?? 0) / total;
+  top.forEach(({ client, amount }, i) => {
+    const share = amount / total;
     slices.push({
       name: client.name,
-      amount: client.current ?? 0,
+      amount,
       share,
       offset,
       colorIndex: i,

@@ -420,6 +420,29 @@ h4 {
   justify-content: space-between;
   align-items: baseline;
   gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* The concentration pie's window control. Baseline-aligned with the card title
+   beside it, so the question and its scope read as one line. */
+.scope-select {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  flex: none;
+}
+
+.scope-select .select {
+  padding: 4px 8px;
+  font-size: 12px;
+}
+
+/* Changing a filter is a server round trip. The control dims until the new
+   numbers arrive — without it, a slow query is indistinguishable from a dead
+   click. */
+[data-pending] {
+  opacity: 0.55;
+  transition: opacity 120ms ease-out;
 }
 
 .legend {

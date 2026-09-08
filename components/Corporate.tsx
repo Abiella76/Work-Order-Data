@@ -1,4 +1,5 @@
 import { formatMoney, formatMoneyCompact } from '@/lib/kpi/money';
+import { ConcentrationScopeSelect } from './ConcentrationScopeSelect';
 import {
   annualisedRunRate,
   concentration,
@@ -6,6 +7,7 @@ import {
   duplicateCandidates,
   periodMonths,
   type ClientSummary,
+  type ConcentrationScope,
   type CorporateInsight,
   type Period,
   type PeriodTotals,
@@ -171,7 +173,7 @@ export function CreditsPanel({ totals }: { totals: PeriodTotals[] }) {
 }
 
 /**
- * Share of the current period resting on the largest accounts.
+ * Share of one window's revenue resting on the largest accounts.
  *
  * A donut rather than a bar: this is a part-to-whole question with six slices,
  * which is what a pie is actually good at, and the hole gives the headline
@@ -181,10 +183,33 @@ export function CreditsPanel({ totals }: { totals: PeriodTotals[] }) {
  * with its own figure, and the slices are separated by a visible gap. The
  * palette's worst pair sits at CVD ΔE 7.8, which is only defensible with that
  * second encoding present.
+ *
+ * The window is selectable because the answer moves with it, and a reader who
+ * cannot see which window is in force cannot tell a concentrated book from a
+ * short reporting period. Whatever is selected is named under the title and
+ * again in the hole's label.
  */
-export function ConcentrationPanel({ summaries }: { summaries: ClientSummary[] }) {
-  const top = concentration(summaries, 5);
-  const { slices } = concentrationSlices(summaries, 5);
+export function ConcentrationPanel({
+  summaries,
+  periods,
+  selected,
+  defaultKey,
+}: {
+  summaries: ClientSummary[];
+  periods: Period[];
+  /** 'all', or a period key. */
+  selected: string;
+  defaultKey: string;
+}) {
+  const scope: ConcentrationScope =
+    selected === 'all' ? { kind: 'all' } : { kind: 'period', key: selected };
+  const scopeLabel =
+    selected === 'all'
+      ? 'all periods combined'
+      : (periods.find((p) => p.key === selected)?.label ?? selected);
+
+  const top = concentration(summaries, 5, scope);
+  const { slices } = concentrationSlices(summaries, 5, scope);
 
   // Donut geometry: one dasharray arc per slice on a shared circle, which needs
   // no path maths and no charting library.
@@ -197,12 +222,21 @@ export function ConcentrationPanel({ summaries }: { summaries: ClientSummary[] }
 
   return (
     <section className="card">
-      <h2 className="card-title">Revenue concentration</h2>
-      <div className="card-sub">Share of current-period revenue by account</div>
+      <div className="chart-head">
+        <div>
+          <h2 className="card-title">Revenue concentration</h2>
+          <div className="card-sub">Share of revenue by account — {scopeLabel}</div>
+        </div>
+        <ConcentrationScopeSelect
+          periods={periods.map((p) => ({ key: p.key, label: p.label }))}
+          value={selected}
+          defaultValue={defaultKey}
+        />
+      </div>
 
       {slices.length === 0 ? (
         <div className="card-sub" style={{ marginTop: 14 }}>
-          No account has revenue in the current period.
+          No account has positive revenue in {scopeLabel}.
         </div>
       ) : (
         <div className="pie-wrap">

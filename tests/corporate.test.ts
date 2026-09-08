@@ -361,6 +361,63 @@ describe('setup DDL', () => {
   });
 });
 
+describe('concentration scope', () => {
+  // All-time ranks by lifetime, so the accounts that only ever traded in FY2024
+  // enter the picture and the ranking changes — which is the whole point of
+  // offering the choice.
+  it('ranks by lifetime when the scope is all periods', () => {
+    const c = concentration(summaries, 3, { kind: 'all' });
+    expect(c.names).toEqual([
+      'Northwind Facilities',
+      'Cascade Retail Group',
+      'Summit Health Partners',
+    ]);
+    // $1,000,000 across the statement plus $210,000 of FY2024 history that
+    // survives the positive-only rule (Harbor Point's credit does not).
+    expect(formatMoney(c.amount)).toBe('$1,000,000.00');
+    expect(c.share).toBeCloseTo(1000000 / 1210000, 6);
+  });
+
+  it('measures one named period when given its key', () => {
+    const c = concentration(summaries, 5, { kind: 'period', key: 'FY2024' });
+    expect(c.names).toEqual([
+      'Lakeshore Logistics',
+      'Vantage Financial Group',
+      'Northwind Facilities Inc',
+    ]);
+    expect(formatMoney(c.amount)).toBe('$210,000.00');
+    // Harbor Point's -$40,000 is excluded rather than netted off the whole.
+    expect(c.share).toBe(1);
+  });
+
+  it('defaults to the newest period', () => {
+    expect(concentration(summaries, 3)).toEqual(
+      concentration(summaries, 3, { kind: 'period', key: 'STATEMENT' }),
+    );
+  });
+
+  it('excludes an explicit zero from the slices, like an absent period', () => {
+    const { slices } = concentrationSlices(summaries, 5, { kind: 'period', key: 'FY2025' });
+    expect(slices).toEqual([]);
+  });
+
+  it('reports nothing for a period the data does not hold', () => {
+    const { slices, total } = concentrationSlices(summaries, 5, { kind: 'period', key: 'FY2099' });
+    expect(slices).toEqual([]);
+    expect(total).toBe(0);
+  });
+
+  it('sizes slices by the scope, not by the newest period', () => {
+    const { slices } = concentrationSlices(summaries, 2, { kind: 'period', key: 'FY2024' });
+    expect(slices.map((s) => s.name)).toEqual([
+      'Lakeshore Logistics',
+      'Vantage Financial Group',
+      '1 other account',
+    ]);
+    expect(slices.reduce((n, s) => n + s.share, 0)).toBeCloseTo(1, 10);
+  });
+});
+
 describe('concentration pie slices', () => {
   const { slices, total, othersCount } = concentrationSlices(summaries, 2);
 

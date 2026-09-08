@@ -28,7 +28,16 @@ export const dynamic = 'force-dynamic';
  * Corporate snapshot: which accounts are still trading, what lapsed, and how
  * concentrated the current book is.
  */
-export default async function CorporatePage() {
+export default async function CorporatePage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const params = await searchParams;
+  const requestedScope = Array.isArray(params.concentration)
+    ? params.concentration[0]
+    : params.concentration;
+
   if (!isDatabaseConfigured()) {
     return (
       <main className="page">
@@ -75,6 +84,17 @@ export default async function CorporatePage() {
   const split = statusSplit(summaries);
   const insights = corporateInsights({ summaries, totals, split });
 
+  // The newest period is the default window for the concentration pie, and is
+  // what the snapshot insight quotes — so an unrecognised ?concentration= falls
+  // back to it rather than rendering an empty chart for a period we do not hold.
+  const ordered = [...periods].sort((a, b) => a.sortOrder - b.sortOrder);
+  const defaultScope = ordered[ordered.length - 1].key;
+  const scope =
+    requestedScope != null &&
+    (requestedScope === 'all' || periods.some((p) => p.key === requestedScope))
+      ? requestedScope
+      : defaultScope;
+
   return (
     <main className="page">
       <div className="page-inner">
@@ -97,7 +117,12 @@ export default async function CorporatePage() {
 
         <div className="row-flow" style={{ gridTemplateColumns: '1.4fr 1fr' }}>
           <RevenueByPeriod totals={totals} />
-          <ConcentrationPanel summaries={summaries} />
+          <ConcentrationPanel
+            summaries={summaries}
+            periods={ordered}
+            selected={scope}
+            defaultKey={defaultScope}
+          />
         </div>
 
         <div className="row-flow" style={{ gridTemplateColumns: '1fr 1fr' }}>
