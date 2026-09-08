@@ -3,6 +3,7 @@ import {
   annualisedRunRate,
   concentration,
   concentrationSlices,
+  periodStatusSplit,
   corporateInsights,
   duplicateCandidates,
   periodMonths,
@@ -358,6 +359,39 @@ describe('setup DDL', () => {
       if (/^\s*DO \$\$/.test(statement)) expect(statement).toContain('duplicate_object');
       else expect(statement).not.toMatch(/^ALTER TABLE/i);
     }
+  });
+});
+
+describe('period status split', () => {
+  it('counts the accounts that billed in the period, not the file’s own column', () => {
+    const split = periodStatusSplit(summaries, 'FY2024');
+    // Three billed in FY2024. Harbor Point only credited and the three
+    // statement-only accounts had not started, so none of them count as active.
+    expect(split.active).toBe(3);
+    expect(split.inactive).toBe(4);
+    expect(split.total).toBe(7);
+  });
+
+  it('treats an explicit zero as no activity', () => {
+    // Vantage is the only account with an FY2025 figure, and it is $0.00.
+    expect(periodStatusSplit(summaries, 'FY2025').active).toBe(0);
+  });
+
+  it('excludes a lone credit from the active count', () => {
+    const split = periodStatusSplit(summaries, 'FY2024');
+    expect(split.active).toBe(3);
+    // Harbor Point's -$40,000 lands in the inactive group's lifetime instead.
+    expect(formatMoney(split.inactiveLifetime)).toBe('$960,000.00');
+  });
+
+  it('reports every account inactive for a period the data does not hold', () => {
+    const split = periodStatusSplit(summaries, 'FY2099');
+    expect(split.active).toBe(0);
+    expect(split.inactive).toBe(summaries.length);
+  });
+
+  it('sums only the focused period into activeCurrent', () => {
+    expect(formatMoney(periodStatusSplit(summaries, 'FY2024').activeCurrent)).toBe('$210,000.00');
   });
 });
 

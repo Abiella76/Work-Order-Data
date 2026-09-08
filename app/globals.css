@@ -1150,6 +1150,16 @@ h4 {
   gap: 18px;
 }
 
+/* The period focus sits beside Replace report, at the head of the section it
+   governs rather than on any one card inside it. */
+.section-head-actions {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
 .replace-panel {
   border: 1px solid var(--color-warm-800);
   border-radius: var(--radius-card);

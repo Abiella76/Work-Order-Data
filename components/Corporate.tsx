@@ -1,5 +1,4 @@
 import { formatMoney, formatMoneyCompact } from '@/lib/kpi/money';
-import { ConcentrationScopeSelect } from './ConcentrationScopeSelect';
 import {
   annualisedRunRate,
   concentration,
@@ -14,37 +13,62 @@ import {
   type StatusSplit,
 } from '@/lib/kpi/corporate';
 
-/** The four headline figures for the snapshot. */
+/**
+ * The three headline figures, measured over whichever period is in focus.
+ *
+ * Every card names its own window, because the same three numbers mean
+ * different things across them: read against one year, "active" is who billed
+ * that year; read across all of them, it is the file's own classification of
+ * who is a customer now. A card that did not say which it was showing would be
+ * the most quietly wrong thing on the page.
+ */
 export function CorporateKpis({
   split,
   totals,
+  selected,
 }: {
   split: StatusSplit;
   totals: PeriodTotals[];
+  /** 'all', or a period key. */
+  selected: string;
 }) {
-  const newest = totals[totals.length - 1];
   const activeShare = split.total > 0 ? Math.round((split.active / split.total) * 100) : 0;
+  const focused = totals.find((t) => t.period.key === selected);
+  const first = totals[0];
+  const last = totals[totals.length - 1];
 
-  const cards = [
+  const revenueCard = focused
+    ? {
+        label: focused.period.label,
+        value: formatMoney(focused.total),
+        sub: focused.period.isPartial
+          ? `${periodMonths(focused.period)} months — partial period`
+          : 'full period',
+      }
+    : {
+        label: 'All periods',
+        value: formatMoney(totals.reduce((n, t) => n + t.total, 0)),
+        sub:
+          first && last
+            ? `${totals.length} periods · ${first.period.label} to ${last.period.label}`
+            : 'no periods loaded',
+      };
+
+  const cards: { label: string; value: string; sub: string; accent?: boolean; warm?: boolean }[] = [
     {
-      label: 'Active accounts',
+      label: focused ? `Active in ${focused.period.label}` : 'Active accounts',
       value: String(split.active),
-      sub: `${activeShare}% of ${split.total} classified`,
+      sub: focused
+        ? `${activeShare}% of ${split.total} accounts on record`
+        : `${activeShare}% of ${split.total} classified`,
     },
     {
-      label: 'Inactive accounts',
+      label: focused ? `Inactive in ${focused.period.label}` : 'Inactive accounts',
       value: String(split.inactive),
-      sub: `${formatMoney(split.inactiveLifetime)} historical revenue`,
+      sub: `${formatMoney(split.inactiveLifetime)} ${focused ? 'lifetime' : 'historical'} revenue`,
       accent: true,
     },
-    {
-      label: newest ? newest.period.label : 'Current period',
-      value: newest ? formatMoney(newest.total) : '—',
-      sub: newest?.period.isPartial
-        ? `${periodMonths(newest.period)} months — partial period`
-        : 'full period',
-      warm: true,
-    },
+    { ...revenueCard, warm: true },
   ];
 
   return (
@@ -193,13 +217,11 @@ export function ConcentrationPanel({
   summaries,
   periods,
   selected,
-  defaultKey,
 }: {
   summaries: ClientSummary[];
   periods: Period[];
   /** 'all', or a period key. */
   selected: string;
-  defaultKey: string;
 }) {
   const scope: ConcentrationScope =
     selected === 'all' ? { kind: 'all' } : { kind: 'period', key: selected };
@@ -222,17 +244,8 @@ export function ConcentrationPanel({
 
   return (
     <section className="card">
-      <div className="chart-head">
-        <div>
-          <h2 className="card-title">Revenue concentration</h2>
-          <div className="card-sub">Share of revenue by account — {scopeLabel}</div>
-        </div>
-        <ConcentrationScopeSelect
-          periods={periods.map((p) => ({ key: p.key, label: p.label }))}
-          value={selected}
-          defaultValue={defaultKey}
-        />
-      </div>
+      <h2 className="card-title">Revenue concentration</h2>
+      <div className="card-sub">Share of revenue by account — {scopeLabel}</div>
 
       {slices.length === 0 ? (
         <div className="card-sub" style={{ marginTop: 14 }}>

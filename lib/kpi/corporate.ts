@@ -152,6 +152,35 @@ export interface StatusSplit {
   activeCurrent: Cents;
 }
 
+/**
+ * Accounts split by whether they traded in one named period.
+ *
+ * The stored status is the source file's own classification: it answers "is
+ * this a customer now", and cannot answer "was this a customer in FY2024".
+ * Asked about a period, the split is derived from that period's figures
+ * instead.
+ *
+ * Active means a positive amount billed in the period. An explicit $0.00 is
+ * not activity — the source lists such accounts and its own report excludes
+ * them from the active count — and neither is a lone credit, which adjusts
+ * past work rather than recording new work.
+ */
+export function periodStatusSplit(
+  summaries: readonly ClientSummary[],
+  periodKey: string,
+): StatusSplit {
+  const billed = (c: ClientSummary) => (c.revenue[periodKey] ?? 0) > 0;
+  const active = summaries.filter(billed);
+  const inactive = summaries.filter((c) => !billed(c));
+  return {
+    active: active.length,
+    inactive: inactive.length,
+    total: summaries.length,
+    inactiveLifetime: inactive.reduce((n, c) => n + c.lifetime, 0),
+    activeCurrent: active.reduce((n, c) => n + (c.revenue[periodKey] ?? 0), 0),
+  };
+}
+
 export function statusSplit(summaries: readonly ClientSummary[]): StatusSplit {
   const active = summaries.filter((c) => c.status === 'active');
   const inactive = summaries.filter((c) => c.status === 'inactive');

@@ -12,8 +12,10 @@ import {
   periodTotals,
   summariseClients,
   statusSplit,
+  periodStatusSplit,
   corporateInsights,
 } from '@/lib/kpi/corporate';
+import { PeriodFocusSelect } from '@/components/PeriodFocusSelect';
 import { loadCorporateSnapshot } from '@/lib/queries';
 import { isDatabaseConfigured } from '@/db/client';
 import { describeDbError } from '@/lib/db-error';
@@ -34,9 +36,7 @@ export default async function CorporatePage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const params = await searchParams;
-  const requestedScope = Array.isArray(params.concentration)
-    ? params.concentration[0]
-    : params.concentration;
+  const requestedScope = Array.isArray(params.period) ? params.period[0] : params.period;
 
   if (!isDatabaseConfigured()) {
     return (
@@ -81,12 +81,10 @@ export default async function CorporatePage({
 
   const summaries = summariseClients(clients, periods);
   const totals = periodTotals(clients, periods);
-  const split = statusSplit(summaries);
-  const insights = corporateInsights({ summaries, totals, split });
 
-  // The newest period is the default window for the concentration pie, and is
-  // what the snapshot insight quotes — so an unrecognised ?concentration= falls
-  // back to it rather than rendering an empty chart for a period we do not hold.
+  // The newest period is the default focus, and is what the snapshot insight
+  // quotes — so an unrecognised ?period= falls back to it rather than rendering
+  // empty cards for a period we do not hold.
   const ordered = [...periods].sort((a, b) => a.sortOrder - b.sortOrder);
   const defaultScope = ordered[ordered.length - 1].key;
   const scope =
@@ -94,6 +92,16 @@ export default async function CorporatePage({
     (requestedScope === 'all' || periods.some((p) => p.key === requestedScope))
       ? requestedScope
       : defaultScope;
+
+  // Across all periods the split is the file's own Active/Inactive column —
+  // who is a customer now. Focused on one period it is derived from that
+  // period's billing, which is the only thing that can answer the question for
+  // a year that has already closed.
+  const split = scope === 'all' ? statusSplit(summaries) : periodStatusSplit(summaries, scope);
+
+  // The insights read the whole book, not the focused window: they are the
+  // page's standing commentary, and a filter must not silently rewrite them.
+  const insights = corporateInsights({ summaries, totals, split: statusSplit(summaries) });
 
   return (
     <main className="page">
@@ -109,20 +117,22 @@ export default async function CorporatePage({
                 {periods[0].label} to {periods[periods.length - 1].label}
               </div>
             </div>
-            <ReplaceReport />
+            <div className="section-head-actions">
+              <PeriodFocusSelect
+                periods={ordered.map((p) => ({ key: p.key, label: p.label }))}
+                value={scope}
+                defaultValue={defaultScope}
+              />
+              <ReplaceReport />
+            </div>
           </div>
         </div>
 
-        <CorporateKpis split={split} totals={totals} />
+        <CorporateKpis split={split} totals={totals} selected={scope} />
 
         <div className="row-flow" style={{ gridTemplateColumns: '1.4fr 1fr' }}>
           <RevenueByPeriod totals={totals} />
-          <ConcentrationPanel
-            summaries={summaries}
-            periods={ordered}
-            selected={scope}
-            defaultKey={defaultScope}
-          />
+          <ConcentrationPanel summaries={summaries} periods={ordered} selected={scope} />
         </div>
 
         <div className="row-flow" style={{ gridTemplateColumns: '1fr 1fr' }}>
